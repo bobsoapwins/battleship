@@ -34,7 +34,7 @@ export const ShipSelector: FC<ShipSelectorProps> = ({
         <div>
           <p className="text-muted-foreground">Placing ship {shipsPlacedCount + 1} of {totalShips}</p>
           <div className="w-full bg-secondary rounded-full h-2.5 mt-2">
-            <div className="bg-primary h-2.5 rounded-full" style={{ width: `${progress}%` }}></div>
+            <div className="bg-primary h-2.5 rounded-full transition-all duration-500" style={{ width: `${progress}%` }}></div>
           </div>
         </div>
 
