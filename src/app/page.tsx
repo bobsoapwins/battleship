@@ -11,17 +11,17 @@ import { Button } from '@/components/ui/button';
 
 export default function Home() {
   const { gameState, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement } = useGame();
-  const { phase, players, currentPlayerId, message, placementState } = gameState;
+  const { phase, players, currentPlayerId, message, placementState, isTransitioning, shotResult } = gameState;
   const [showMyBoard, setShowMyBoard] = useState(false);
 
   useEffect(() => {
-    if (phase === 'battle') {
+    if (phase === 'battle' && !isTransitioning) {
       setShowMyBoard(false);
     }
     if (phase === 'gameover') {
       setShowMyBoard(true);
     }
-  }, [phase, currentPlayerId]);
+  }, [phase, currentPlayerId, isTransitioning]);
 
   const currentPlayer = players[currentPlayerId - 1];
   const opponentPlayer = players[currentPlayerId === 1 ? 1 : 0];
@@ -57,13 +57,14 @@ export default function Home() {
   };
 
   const renderBattlePhase = () => {
-    const boardToShow = showMyBoard ? currentPlayer : opponentPlayer;
-    const isPlayerBoard = showMyBoard;
+    // During transition, we want to see the opponent's board where the shot landed.
+    const boardToShow = showMyBoard && !isTransitioning ? currentPlayer : opponentPlayer;
+    const isPlayerBoard = showMyBoard && !isTransitioning;
     const title = isPlayerBoard ? `${currentPlayer.name}'s Fleet (You)` : `${opponentPlayer.name}'s Fleet (Opponent)`;
 
     return (
       <div className="flex flex-col items-center gap-4">
-        <Button onClick={() => setShowMyBoard(b => !b)} variant="outline">
+        <Button onClick={() => setShowMyBoard(b => !b)} variant="outline" disabled={isTransitioning}>
           {showMyBoard ? `Show ${opponentPlayer.name}'s Board` : `Show ${currentPlayer.name}'s Board`}
         </Button>
         <div className={cn("p-4 rounded-xl transition-all duration-500", !isPlayerBoard && phase === 'battle' ? 'bg-primary/10 ring-2 ring-accent' : 'opacity-80')}>
@@ -73,7 +74,8 @@ export default function Home() {
             ships={boardToShow.ships}
             onCellClick={isPlayerBoard ? () => {} : (x, y) => handleFire(x, y)}
             isPlayerBoard={isPlayerBoard}
-            disabled={isPlayerBoard || phase !== 'battle'}
+            disabled={isPlayerBoard || phase !== 'battle' || isTransitioning}
+            lastShot={shotResult}
           />
         </div>
       </div>

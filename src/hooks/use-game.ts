@@ -5,12 +5,8 @@ import type {
   GameState,
   Player,
   Ship,
-  Board,
-  Orientation,
-  ShipType,
 } from '@/lib/game';
 import {
-  GRID_SIZE,
   SHIP_TYPES,
   createEmptyBoard,
   canPlaceShip,
@@ -34,6 +30,8 @@ const getInitialState = (): GameState => ({
     shipIndex: 0,
     orientation: 'horizontal',
   },
+  isTransitioning: false,
+  shotResult: null,
 });
 
 export const useGame = () => {
@@ -144,7 +142,7 @@ export const useGame = () => {
 
   const handleFire = useCallback((x: number, y: number) => {
     setGameState((prev) => {
-      if (prev.phase !== 'battle') return prev;
+      if (prev.phase !== 'battle' || prev.isTransitioning) return prev;
 
       const { currentPlayerId, players } = prev;
       const opponentId = currentPlayerId === 1 ? 2 : 1;
@@ -155,7 +153,7 @@ export const useGame = () => {
       }
 
       const newOpponentBoard = opponent.board.map(row => [...row]);
-      let message = '';
+      let resultMessage = '';
       let newOpponentShips = [...opponent.ships];
       let hitShip = false;
 
@@ -170,9 +168,9 @@ export const useGame = () => {
                 const newHits = [...ship.hits, {x, y}];
                 const sunk = newHits.length === ship.size;
                 if(sunk) {
-                    message = `You sunk their ${ship.name}!`;
+                    resultMessage = `You sunk their ${ship.name}!`;
                 } else {
-                    message = "It's a HIT!";
+                    resultMessage = "It's a HIT!";
                 }
                 return { ...ship, hits: newHits, sunk };
             }
@@ -187,22 +185,40 @@ export const useGame = () => {
                 phase: 'gameover',
                 winner: players[currentPlayerId - 1],
                 message: `Game Over! ${players[currentPlayerId - 1].name} wins!`,
+                isTransitioning: false,
+                shotResult: { x, y },
             };
         }
       } else {
         newOpponentBoard[y][x] = 'miss';
-        message = "It's a MISS!";
+        resultMessage = "It's a MISS!";
       }
 
       const newOpponent: Player = { ...opponent, board: newOpponentBoard, ships: newOpponentShips };
       const newPlayers: [Player, Player] = [...players];
       newPlayers[opponentId-1] = newOpponent;
+      
+      setTimeout(() => {
+        setGameState(currentGameState => {
+            if (currentGameState.phase !== 'battle' || !currentGameState.isTransitioning) return currentGameState;
+            const nextPlayerId = currentGameState.currentPlayerId === 1 ? 2 : 1;
+            const nextPlayer = currentGameState.players[nextPlayerId - 1];
+            return {
+                ...currentGameState,
+                isTransitioning: false,
+                shotResult: null,
+                currentPlayerId: nextPlayerId,
+                message: `${nextPlayer.name}, your turn.`
+            }
+        });
+      }, 1500);
 
       return {
         ...prev,
         players: newPlayers,
-        currentPlayerId: opponentId,
-        message: `${message} ${players[opponentId - 1].name}, your turn.`,
+        isTransitioning: true,
+        shotResult: { x, y },
+        message: resultMessage,
       };
     });
   }, []);

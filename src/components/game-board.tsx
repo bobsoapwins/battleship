@@ -12,9 +12,10 @@ interface GameBoardProps {
   onCellClick: (x: number, y: number) => void;
   isPlayerBoard: boolean;
   disabled?: boolean;
+  lastShot?: { x: number; y: number } | null;
 }
 
-export const GameBoard: FC<GameBoardProps> = ({ boardData, ships, onCellClick, isPlayerBoard, disabled = false }) => {
+export const GameBoard: FC<GameBoardProps> = ({ boardData, ships, onCellClick, isPlayerBoard, disabled = false, lastShot }) => {
   
   const getShipAt = (x: number, y: number) => {
     return ships.find(ship => ship.positions.some(pos => pos.x === x && pos.y === y));
@@ -49,18 +50,20 @@ export const GameBoard: FC<GameBoardProps> = ({ boardData, ships, onCellClick, i
         row.map((cell, x) => {
           const ship = getShipAt(x, y);
           const isShipSunk = isSunk(ship);
+          const isLastShot = lastShot?.x === x && lastShot.y === y;
           
           return (
             <div
               key={`${x}-${y}`}
               onClick={() => !disabled && onCellClick(x, y)}
               className={cn(
-                'w-full h-full rounded-sm flex items-center justify-center aspect-square transition-colors duration-200',
+                'w-full h-full rounded-sm flex items-center justify-center aspect-square transition-colors duration-200 relative',
                 disabled ? 'cursor-not-allowed' : 'cursor-pointer hover:bg-accent/50',
                 cell === 'ship' && isPlayerBoard ? 'bg-primary/80' : 'bg-primary/40',
                 cell === 'hit' && 'bg-red-500/80',
                 isShipSunk && 'bg-red-800/80',
-                cell === 'miss' && 'bg-blue-300/50'
+                cell === 'miss' && 'bg-blue-300/50',
+                isLastShot && 'animate-shot z-10'
               )}
             >
               {renderCellContent(x, y)}

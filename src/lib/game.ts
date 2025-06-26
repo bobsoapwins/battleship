@@ -44,6 +44,8 @@ export interface GameState {
     shipIndex: number;
     orientation: Orientation;
   };
+  isTransitioning: boolean;
+  shotResult: { x: number; y: number } | null;
 }
 
 export const createEmptyBoard = (): Board =>
