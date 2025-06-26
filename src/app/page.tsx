@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useGame } from '@/hooks/use-game';
 import { GameBoard } from '@/components/game-board';
 import { ShipSelector } from '@/components/ship-selector';
@@ -14,22 +14,8 @@ export default function Home() {
   const { phase, players, currentPlayerId, message, placementState, isTransitioning, shotResult } = gameState;
   const [showMyBoard, setShowMyBoard] = useState(false);
 
-  useEffect(() => {
-    if (phase === 'battle' && !isTransitioning) {
-      setShowMyBoard(false);
-    }
-    if (phase === 'gameover') {
-      setShowMyBoard(true);
-    }
-  }, [phase, isTransitioning]);
-
   const currentPlayer = players[currentPlayerId - 1];
   const opponentPlayer = players[currentPlayerId === 1 ? 1 : 0];
-
-  const handleFireAndSwitch = (x: number, y: number) => {
-    setShowMyBoard(false);
-    handleFire(x, y);
-  };
 
   const renderPlacementPhase = () => {
     const playerToPlace = players[placementState.playerToPlace - 1];
@@ -63,45 +49,31 @@ export default function Home() {
 
   const renderBattlePhase = () => {
     return (
-      <div className="flex flex-col items-center gap-4 w-full">
-        <Button onClick={() => setShowMyBoard(b => !b)} variant="outline" disabled={isTransitioning}>
-          {showMyBoard ? `Show ${opponentPlayer.name}'s Board` : `Show ${currentPlayer.name}'s Board`}
-        </Button>
-        <div className="w-full overflow-hidden max-w-lg mx-auto">
-          <div
-            className="flex transition-transform duration-500 ease-in-out"
-            style={{ transform: showMyBoard ? 'translateX(0)' : 'translateX(-100%)' }}
-          >
-            {/* My Board */}
-            <div className="w-full flex-shrink-0">
-              <div className={cn("p-4 rounded-xl transition-all duration-500 opacity-80")}>
-                <h2 className="text-2xl font-headline mb-4 text-center">{`${currentPlayer.name}'s Fleet (You)`}</h2>
-                <GameBoard
-                  boardData={currentPlayer.board}
-                  ships={currentPlayer.ships}
-                  onCellClick={() => {}}
-                  isPlayerBoard={true}
-                  disabled={true}
-                  lastShot={null}
-                />
-              </div>
-            </div>
+      <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
+        {/* My Board */}
+        <div className={cn("w-full lg:w-1/2 p-4 rounded-xl transition-all duration-500", phase === 'battle' && !isTransitioning ? 'opacity-50' : '')}>
+          <h2 className="text-2xl font-headline mb-4 text-center">{`${currentPlayer.name}'s Fleet (You)`}</h2>
+          <GameBoard
+            boardData={currentPlayer.board}
+            ships={currentPlayer.ships}
+            onCellClick={() => {}}
+            isPlayerBoard={true}
+            disabled={true}
+            lastShot={null}
+          />
+        </div>
 
-            {/* Opponent's Board */}
-            <div className="w-full flex-shrink-0">
-               <div className={cn("p-4 rounded-xl transition-all duration-500", phase === 'battle' && !isTransitioning ? 'bg-primary/10 ring-2 ring-accent' : 'opacity-80')}>
-                <h2 className="text-2xl font-headline mb-4 text-center">{`${opponentPlayer.name}'s Fleet (Opponent)`}</h2>
-                <GameBoard
-                  boardData={opponentPlayer.board}
-                  ships={opponentPlayer.ships}
-                  onCellClick={handleFireAndSwitch}
-                  isPlayerBoard={false}
-                  disabled={phase !== 'battle' || isTransitioning}
-                  lastShot={shotResult}
-                />
-              </div>
-            </div>
-          </div>
+        {/* Opponent's Board */}
+        <div className={cn("w-full lg:w-1/2 p-4 rounded-xl transition-all duration-500", phase === 'battle' && !isTransitioning ? 'bg-primary/10 ring-2 ring-accent' : 'opacity-80')}>
+          <h2 className="text-2xl font-headline mb-4 text-center">{`${opponentPlayer.name}'s Fleet (Opponent)`}</h2>
+          <GameBoard
+            boardData={opponentPlayer.board}
+            ships={opponentPlayer.ships}
+            onCellClick={handleFire}
+            isPlayerBoard={false}
+            disabled={phase !== 'battle' || isTransitioning}
+            lastShot={shotResult}
+          />
         </div>
       </div>
     );
@@ -112,8 +84,9 @@ export default function Home() {
       case 'placement':
         return renderPlacementPhase();
       case 'battle':
-      case 'gameover':
         return renderBattlePhase();
+      case 'gameover':
+        return null;
       case 'intermission':
         return null; // The GameStatus component handles this case.
       default:
