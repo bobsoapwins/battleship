@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
 export default function Home() {
-  const { gameState, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement } = useGame();
+  const { gameState, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn } = useGame();
   const { phase, players, currentPlayerId, message, placementState, isTransitioning, shotResult } = gameState;
   const [showMyBoard, setShowMyBoard] = useState(false);
 
@@ -97,7 +97,14 @@ export default function Home() {
   return (
     <main className="container mx-auto p-4 md:p-8 min-h-screen flex flex-col items-center">
       <div className="w-full mb-8">
-        <GameStatus phase={phase} message={message} onReset={resetGame} onStartNextPlacement={startNextPlacement} />
+        <GameStatus
+          phase={phase}
+          message={message}
+          onReset={resetGame}
+          onStartNextPlacement={startNextPlacement}
+          isTransitioning={isTransitioning}
+          onConfirmShot={confirmShotAndSwitchTurn}
+        />
       </div>
       <div className="w-full">
         {renderContent()}

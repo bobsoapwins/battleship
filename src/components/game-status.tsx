@@ -11,14 +11,29 @@ interface GameStatusProps {
   message: string;
   onReset: () => void;
   onStartNextPlacement?: () => void;
+  isTransitioning?: boolean;
+  onConfirmShot?: () => void;
 }
 
-export const GameStatus: FC<GameStatusProps> = ({ phase, message, onReset, onStartNextPlacement }) => {
+export const GameStatus: FC<GameStatusProps> = ({ phase, message, onReset, onStartNextPlacement, isTransitioning, onConfirmShot }) => {
+  const renderTitle = () => {
+    if (phase === 'gameover') return 'Game Over!';
+    if (isTransitioning && phase === 'battle') {
+        if (message.toLowerCase().includes('hit') || message.toLowerCase().includes('sunk')) {
+            return "Direct Hit!";
+        }
+        if (message.toLowerCase().includes('miss')) {
+            return "Missed!";
+        }
+    }
+    return 'Battleship';
+  }
+
   return (
     <Card className="text-center w-full max-w-md mx-auto">
       <CardHeader>
         <CardTitle className="font-headline text-3xl">
-          {phase === 'gameover' ? 'Game Over!' : 'Battleship'}
+          {renderTitle()}
         </CardTitle>
         <CardDescription>{message}</CardDescription>
       </CardHeader>
@@ -31,6 +46,11 @@ export const GameStatus: FC<GameStatusProps> = ({ phase, message, onReset, onSta
       {phase === 'intermission' && onStartNextPlacement && (
         <CardContent>
             <Button onClick={onStartNextPlacement}>Ready Player 2</Button>
+        </CardContent>
+      )}
+      {isTransitioning && phase === 'battle' && onConfirmShot && (
+        <CardContent>
+            <Button onClick={onConfirmShot}>Continue</Button>
         </CardContent>
       )}
     </Card>

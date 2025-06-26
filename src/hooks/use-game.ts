@@ -140,6 +140,21 @@ export const useGame = () => {
     })
   }, []);
 
+  const confirmShotAndSwitchTurn = useCallback(() => {
+    setGameState(currentGameState => {
+        if (currentGameState.phase !== 'battle' || !currentGameState.isTransitioning) return currentGameState;
+        const nextPlayerId = currentGameState.currentPlayerId === 1 ? 2 : 1;
+        const nextPlayer = currentGameState.players[nextPlayerId - 1];
+        return {
+            ...currentGameState,
+            isTransitioning: false,
+            shotResult: null,
+            currentPlayerId: nextPlayerId,
+            message: `${nextPlayer.name}, your turn.`
+        }
+    });
+  }, []);
+
   const handleFire = useCallback((x: number, y: number) => {
     setGameState((prev) => {
       if (prev.phase !== 'battle' || prev.isTransitioning) return prev;
@@ -198,21 +213,6 @@ export const useGame = () => {
       const newPlayers: [Player, Player] = [...players];
       newPlayers[opponentId-1] = newOpponent;
       
-      setTimeout(() => {
-        setGameState(currentGameState => {
-            if (currentGameState.phase !== 'battle' || !currentGameState.isTransitioning) return currentGameState;
-            const nextPlayerId = currentGameState.currentPlayerId === 1 ? 2 : 1;
-            const nextPlayer = currentGameState.players[nextPlayerId - 1];
-            return {
-                ...currentGameState,
-                isTransitioning: false,
-                shotResult: null,
-                currentPlayerId: nextPlayerId,
-                message: `${nextPlayer.name}, your turn.`
-            }
-        });
-      }, 1500);
-
       return {
         ...prev,
         players: newPlayers,
@@ -223,5 +223,5 @@ export const useGame = () => {
     });
   }, []);
 
-  return { gameState, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement };
+  return { gameState, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn };
 };
