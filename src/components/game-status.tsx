@@ -17,13 +17,13 @@ interface GameStatusProps {
 
 export const GameStatus: FC<GameStatusProps> = ({ phase, message, onReset, onStartNextPlacement, isTransitioning, onConfirmShot }) => {
   const renderTitle = () => {
-    if (phase === 'gameover') return 'Game Over!';
+    if (phase === 'gameover') return 'Game Over';
     if (isTransitioning && phase === 'battle') {
         if (message.toLowerCase().includes('hit') || message.toLowerCase().includes('sunk')) {
-            return "Direct Hit!";
+            return "Hit";
         }
         if (message.toLowerCase().includes('miss')) {
-            return "Missed!";
+            return "Miss";
         }
     }
     return 'Battleship';

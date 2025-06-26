@@ -117,7 +117,7 @@ export const useGame = () => {
             players: newPlayers,
             phase: 'battle',
             currentPlayerId: 1,
-            message: 'All fleets are ready! Player 1, your turn to fire.',
+            message: 'All fleets are placed. Player 1 may fire.',
           };
         }
       }
@@ -183,9 +183,9 @@ export const useGame = () => {
                 const newHits = [...ship.hits, {x, y}];
                 const sunk = newHits.length === ship.size;
                 if(sunk) {
-                    resultMessage = `You sunk their ${ship.name}!`;
+                    resultMessage = `Opponent's ${ship.name} was sunk.`;
                 } else {
-                    resultMessage = "It's a HIT!";
+                    resultMessage = "Hit confirmed.";
                 }
                 return { ...ship, hits: newHits, sunk };
             }
@@ -199,14 +199,14 @@ export const useGame = () => {
                 ...prev,
                 phase: 'gameover',
                 winner: players[currentPlayerId - 1],
-                message: `Game Over! ${players[currentPlayerId - 1].name} wins!`,
+                message: `Game Over. ${players[currentPlayerId - 1].name} is the winner.`,
                 isTransitioning: false,
                 shotResult: { x, y },
             };
         }
       } else {
         newOpponentBoard[y][x] = 'miss';
-        resultMessage = "It's a MISS!";
+        resultMessage = "Shot missed.";
       }
 
       const newOpponent: Player = { ...opponent, board: newOpponentBoard, ships: newOpponentShips };
