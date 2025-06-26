@@ -1,17 +1,27 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useGame } from '@/hooks/use-game';
 import { GameBoard } from '@/components/game-board';
 import { ShipSelector } from '@/components/ship-selector';
 import { GameStatus } from '@/components/game-status';
 import { SHIP_TYPES } from '@/lib/game';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { Swords } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function Home() {
   const { gameState, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement } = useGame();
   const { phase, players, currentPlayerId, message, placementState } = gameState;
+  const [showMyBoard, setShowMyBoard] = useState(false);
+
+  useEffect(() => {
+    if (phase === 'battle') {
+      setShowMyBoard(false);
+    }
+    if (phase === 'gameover') {
+      setShowMyBoard(true);
+    }
+  }, [phase, currentPlayerId]);
 
   const currentPlayer = players[currentPlayerId - 1];
   const opponentPlayer = players[currentPlayerId === 1 ? 1 : 0];
@@ -46,30 +56,29 @@ export default function Home() {
     );
   };
 
-  const renderBattlePhase = () => (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-      <div className={cn("p-4 rounded-xl transition-all duration-500", currentPlayerId === currentPlayer.id ? 'bg-primary/10 ring-2 ring-accent' : 'opacity-60')}>
-        <h2 className="text-2xl font-headline mb-4 text-center">{currentPlayer.name}'s Fleet (You)</h2>
-        <GameBoard
-          boardData={currentPlayer.board}
-          ships={currentPlayer.ships}
-          onCellClick={() => {}}
-          isPlayerBoard={true}
-          disabled={true}
-        />
+  const renderBattlePhase = () => {
+    const boardToShow = showMyBoard ? currentPlayer : opponentPlayer;
+    const isPlayerBoard = showMyBoard;
+    const title = isPlayerBoard ? `${currentPlayer.name}'s Fleet (You)` : `${opponentPlayer.name}'s Fleet (Opponent)`;
+
+    return (
+      <div className="flex flex-col items-center gap-4">
+        <Button onClick={() => setShowMyBoard(b => !b)} variant="outline">
+          {showMyBoard ? `Show ${opponentPlayer.name}'s Board` : `Show ${currentPlayer.name}'s Board`}
+        </Button>
+        <div className={cn("p-4 rounded-xl transition-all duration-500", !isPlayerBoard && phase === 'battle' ? 'bg-primary/10 ring-2 ring-accent' : 'opacity-80')}>
+          <h2 className="text-2xl font-headline mb-4 text-center">{title}</h2>
+          <GameBoard
+            boardData={boardToShow.board}
+            ships={boardToShow.ships}
+            onCellClick={isPlayerBoard ? () => {} : (x, y) => handleFire(x, y)}
+            isPlayerBoard={isPlayerBoard}
+            disabled={isPlayerBoard || phase !== 'battle'}
+          />
+        </div>
       </div>
-      <div className={cn("p-4 rounded-xl transition-all duration-500", currentPlayerId !== currentPlayer.id ? 'bg-primary/10 ring-2 ring-accent' : 'opacity-60')}>
-        <h2 className="text-2xl font-headline mb-4 text-center">{opponentPlayer.name}'s Fleet (Opponent)</h2>
-        <GameBoard
-          boardData={opponentPlayer.board}
-          ships={opponentPlayer.ships}
-          onCellClick={(x, y) => handleFire(x, y)}
-          isPlayerBoard={false}
-          disabled={currentPlayerId !== currentPlayer.id}
-        />
-      </div>
-    </div>
-  );
+    )
+  };
 
   const renderContent = () => {
     switch (phase) {
