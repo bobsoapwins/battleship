@@ -1,18 +1,28 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { useGame } from '@/hooks/use-game';
-import { GameBoard } from '@/components/game-board';
 import { ShipSelector } from '@/components/ship-selector';
 import { GameStatus } from '@/components/game-status';
 import { SHIP_TYPES } from '@/lib/game';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import { SetupScreen } from '@/components/setup-screen';
+
+const GameBoard = dynamic(() => import('@/components/game-board').then(mod => mod.GameBoard), {
+  ssr: false,
+  loading: () => <div className="aspect-square w-full max-w-sm mx-auto md:max-w-md lg:max-w-lg bg-primary/10 rounded-lg animate-pulse" />
+});
+
 
 export default function Home() {
-  const { gameState, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn } = useGame();
+  const { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn } = useGame();
   const { phase, players, currentPlayerId, message, placementState, isTransitioning, shotResult } = gameState;
-  const [showMyBoard, setShowMyBoard] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const currentPlayer = players[currentPlayerId - 1];
   const opponentPlayer = players[currentPlayerId === 1 ? 1 : 0];
@@ -80,6 +90,9 @@ export default function Home() {
   };
 
   const renderContent = () => {
+    if (!isClient) {
+      return null;
+    }
     switch (phase) {
       case 'placement':
         return renderPlacementPhase();
@@ -93,6 +106,14 @@ export default function Home() {
         return null;
     }
   };
+  
+  if (phase === 'setup') {
+    return (
+      <main className="container mx-auto p-4 md:p-8 min-h-screen flex flex-col items-center justify-center">
+        <SetupScreen onGameStart={setPlayerNames} />
+      </main>
+    );
+  }
 
   return (
     <main className="container mx-auto p-4 md:p-8 min-h-screen flex flex-col items-center">

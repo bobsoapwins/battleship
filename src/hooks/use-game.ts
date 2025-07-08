@@ -20,11 +20,11 @@ const initialPlayer = (id: 1 | 2): Player => ({
 });
 
 const getInitialState = (): GameState => ({
-  phase: 'placement',
+  phase: 'setup',
   players: [initialPlayer(1), initialPlayer(2)],
   currentPlayerId: 1,
   winner: null,
-  message: 'Player 1, place your fleet.',
+  message: 'Welcome! Set player names to begin.',
   placementState: {
     playerToPlace: 1,
     shipIndex: 0,
@@ -39,6 +39,24 @@ export const useGame = () => {
 
   const resetGame = useCallback(() => {
     setGameState(getInitialState());
+  }, []);
+
+  const setPlayerNames = useCallback((player1Name: string, player2Name: string) => {
+    setGameState(prev => {
+        if (prev.phase !== 'setup') return prev;
+
+        const newPlayers: [Player, Player] = [
+            {...prev.players[0], name: player1Name },
+            {...prev.players[1], name: player2Name }
+        ];
+
+        return {
+            ...prev,
+            players: newPlayers,
+            phase: 'placement',
+            message: `${newPlayers[0].name}, place your fleet.`
+        }
+    });
   }, []);
 
   const toggleOrientation = useCallback(() => {
@@ -109,7 +127,7 @@ export const useGame = () => {
             ...prev,
             players: newPlayers,
             phase: 'intermission',
-            message: "Player 1's fleet is ready. Pass to Player 2.",
+            message: `${newPlayer.name}'s fleet is ready. Pass to ${newPlayers[1].name}.`,
           };
         } else {
           return {
@@ -117,7 +135,7 @@ export const useGame = () => {
             players: newPlayers,
             phase: 'battle',
             currentPlayerId: 1,
-            message: 'All fleets are placed. Player 1 may fire.',
+            message: `All fleets are placed. ${newPlayers[0].name} may fire.`,
           };
         }
       }
@@ -135,7 +153,7 @@ export const useGame = () => {
                 shipIndex: 0,
                 orientation: 'horizontal',
             },
-            message: `Player 2, place your fleet.`,
+            message: `${prev.players[1].name}, place your fleet.`,
         }
     })
   }, []);
@@ -223,5 +241,5 @@ export const useGame = () => {
     });
   }, []);
 
-  return { gameState, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn };
+  return { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn };
 };

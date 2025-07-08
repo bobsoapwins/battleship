@@ -31,7 +31,7 @@ export type Player = {
   ships: Ship[];
 };
 
-export type GamePhase = 'placement' | 'battle' | 'intermission' | 'gameover';
+export type GamePhase = 'setup' | 'placement' | 'battle' | 'intermission' | 'gameover';
 
 export interface GameState {
   phase: GamePhase;
