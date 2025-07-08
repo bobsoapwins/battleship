@@ -11,8 +11,8 @@ interface SetupScreenProps {
 }
 
 export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
-  const [player1Name, setPlayer1Name] = useState('Player 1');
-  const [player2Name, setPlayer2Name] = useState('Player 2');
+  const [player1Name, setPlayer1Name] = useState('');
+  const [player2Name, setPlayer2Name] = useState('');
 
   const handleStart = () => {
     onGameStart(player1Name.trim() || 'Player 1', player2Name.trim() || 'Player 2');
