@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { cn } from '@/lib/utils';
 
 const bootupSequence = [
   { text: '> Initializing client runtime...', delay: 50 },
@@ -37,7 +36,6 @@ interface BootupScreenProps {
 
 export const BootupScreen = ({ onComplete }: BootupScreenProps) => {
   const [displayedText, setDisplayedText] = useState('');
-  const [showCursor, setShowCursor] = useState(true);
 
   useEffect(() => {
     let currentIndex = 0;
@@ -45,7 +43,6 @@ export const BootupScreen = ({ onComplete }: BootupScreenProps) => {
 
     const type = () => {
       if (currentIndex >= bootupSequence.length) {
-        setShowCursor(false);
         setTimeout(onComplete, 1200); // Wait after finishing
         return;
       }
@@ -80,7 +77,6 @@ export const BootupScreen = ({ onComplete }: BootupScreenProps) => {
       <div className="w-full max-w-3xl">
         <pre className="whitespace-pre-wrap text-lg md:text-xl leading-relaxed">
           {displayedText}
-          <span className={cn('inline-block w-3 h-6 bg-green-400 ml-1', { 'animate-pulse': showCursor, 'hidden': !showCursor })} />
         </pre>
       </div>
     </div>
