@@ -76,7 +76,7 @@ export const BootupScreen = ({ onComplete }: BootupScreenProps) => {
   }, []);
 
   return (
-    <div className="bg-black text-green-400 font-code min-h-screen w-full flex items-center justify-center p-4">
+    <div className="bg-black text-green-400 font-code min-h-screen w-full flex items-start p-8">
       <div className="w-full max-w-3xl">
         <pre className="whitespace-pre-wrap text-lg md:text-xl leading-relaxed">
           {displayedText}
