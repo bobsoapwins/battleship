@@ -8,6 +8,7 @@ import { GameStatus } from '@/components/game-status';
 import { SHIP_TYPES } from '@/lib/game';
 import { cn } from '@/lib/utils';
 import { SetupScreen } from '@/components/setup-screen';
+import { BootupScreen } from '@/components/bootup-screen';
 
 const GameBoard = dynamic(() => import('@/components/game-board').then(mod => mod.GameBoard), {
   ssr: false,
@@ -19,6 +20,7 @@ export default function Home() {
   const { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn } = useGame();
   const { phase, players, currentPlayerId, message, placementState, isTransitioning, shotResult } = gameState;
   const [isClient, setIsClient] = useState(false);
+  const [isBootingUp, setIsBootingUp] = useState(true);
 
   useEffect(() => {
     setIsClient(true);
@@ -107,6 +109,10 @@ export default function Home() {
     }
   };
   
+  if (isBootingUp) {
+    return <BootupScreen onComplete={() => setIsBootingUp(false)} />;
+  }
+
   if (phase === 'setup') {
     return (
       <main className="container mx-auto p-4 md:p-8 min-h-screen flex flex-col items-center justify-center">
