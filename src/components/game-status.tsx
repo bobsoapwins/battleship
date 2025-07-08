@@ -35,7 +35,11 @@ export const GameStatus: FC<GameStatusProps> = ({ phase, message, onReset, onSta
         <CardTitle className="font-headline text-3xl">
           {renderTitle()}
         </CardTitle>
-        <CardDescription>{message}</CardDescription>
+        <CardDescription>
+          {isTransitioning && phase === 'battle' 
+            ? 'Pass the device to your opponent and press Continue.' 
+            : message}
+        </CardDescription>
       </CardHeader>
       {phase === 'gameover' && (
         <CardContent className="flex flex-col items-center gap-4">
