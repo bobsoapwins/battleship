@@ -74,6 +74,13 @@ export default function Home() {
   
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.shiftKey && e.key === 'Tab') {
+        if (currentScreen === 'booting' || currentScreen === 'intro') {
+            e.preventDefault();
+            setCurrentScreen('game');
+        }
+      }
+
       if (e.ctrlKey && e.shiftKey && e.key === 'Tab') {
         e.preventDefault();
         setRevealOpponent(prev => !prev);
@@ -97,7 +104,7 @@ export default function Home() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isTerminalOpen]);
+  }, [isTerminalOpen, currentScreen]);
 
   const handleTerminalCommand = (command: string) => {
     if (command.toLowerCase() === '/cheat') {
