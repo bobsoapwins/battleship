@@ -9,7 +9,7 @@ interface IntroScreenProps {
   onComplete: () => void;
 }
 
-type AnimationPhase = 'idle' | 'northDunne' | 'neoGames' | 'battleship' | 'done';
+type AnimationPhase = 'idle' | 'northDunne' | 'black1' | 'neoGames' | 'black2' | 'battleship' | 'done';
 
 const NorthDunneLogo = () => (
     <div className="w-32 h-32 relative mb-4 rounded-full overflow-hidden">
@@ -39,12 +39,14 @@ export const IntroScreen = ({ onComplete }: IntroScreenProps) => {
   const [phase, setPhase] = useState<AnimationPhase>('idle');
   
   useEffect(() => {
-    const sequence = [
-      () => setPhase('northDunne'), // Show North Dunne
-      () => setPhase('neoGames'),   // Show Neo Games
-      () => setPhase('battleship'), // Show Battleship title
-      () => setPhase('done'),       // Fade out
-      () => onComplete(),           // Complete
+    const sequence: (() => void)[] = [
+      () => setPhase('northDunne'), // Fade in North Dunne
+      () => setPhase('black1'),     // Fade to black
+      () => setPhase('neoGames'),   // Fade in Neo Games
+      () => setPhase('black2'),     // Fade to black
+      () => setPhase('battleship'), // Fade in Battleship title
+      () => setPhase('done'),       // Fade out to black
+      onComplete,                   // Complete
     ];
 
     let currentIndex = 0;
@@ -55,7 +57,7 @@ export const IntroScreen = ({ onComplete }: IntroScreenProps) => {
       } else {
         clearInterval(interval);
       }
-    }, 2500); // Duration for each scene
+    }, 2000); // Shortened duration for a better feel
 
     return () => clearInterval(interval);
   }, [onComplete]);
