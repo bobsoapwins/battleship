@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { SetupScreen } from '@/components/setup-screen';
 import { BootupScreen } from '@/components/bootup-screen';
 import { ReadyUpScreen } from '@/components/ready-up-screen';
+import { Terminal } from '@/components/terminal';
 
 const GameBoard = dynamic(() => import('@/components/game-board').then(mod => mod.GameBoard), {
   ssr: false,
@@ -23,6 +24,7 @@ export default function Home() {
   const [isClient, setIsClient] = useState(false);
   const [isBootingUp, setIsBootingUp] = useState(true);
   const [revealOpponent, setRevealOpponent] = useState(false);
+  const [isTerminalOpen, setIsTerminalOpen] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -34,13 +36,33 @@ export default function Home() {
         e.preventDefault();
         setRevealOpponent(prev => !prev);
       }
+      
+      if (e.key === '/') {
+        if (!isTerminalOpen && (e.target as HTMLElement).tagName !== 'INPUT') {
+            e.preventDefault();
+            setIsTerminalOpen(true);
+        }
+      }
+
+      if (e.key === 'Escape') {
+          if (isTerminalOpen) {
+              setIsTerminalOpen(false);
+          }
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [isTerminalOpen]);
+
+  const handleTerminalCommand = (command: string) => {
+    if (command.toLowerCase() === '/cheat') {
+      setRevealOpponent(prev => !prev);
+    }
+    setIsTerminalOpen(false);
+  };
 
   const currentPlayer = players[currentPlayerId - 1];
   const opponentPlayer = players[currentPlayerId === 1 ? 1 : 0];
@@ -165,6 +187,12 @@ export default function Home() {
       <div className="w-full">
         {renderContent()}
       </div>
+       {isTerminalOpen && (
+        <Terminal
+          onCommand={handleTerminalCommand}
+          onClose={() => setIsTerminalOpen(false)}
+        />
+      )}
     </main>
   );
 }
