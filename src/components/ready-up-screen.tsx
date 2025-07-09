@@ -1,9 +1,10 @@
+
 'use client';
 
 import type { Player, ReadyStates } from '@/lib/game';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { CheckCircle2, XCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface ReadyUpScreenProps {
   players: [Player, Player];
@@ -17,13 +18,13 @@ export const ReadyUpScreen = ({ players, readyStates, onToggleReady, onStartBatt
 
   const PlayerStatus = ({ player, isReady }: { player: Player, isReady: boolean }) => (
     <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col items-start">
+        <span className="font-medium text-lg">{player.name}</span>
         {isReady ? (
-          <CheckCircle2 className="w-6 h-6 text-green-500" />
+            <span className="text-sm font-bold text-green-600">READY</span>
         ) : (
-          <XCircle className="w-6 h-6 text-red-500" />
+            <span className="text-sm font-bold text-red-600">UNREADY</span>
         )}
-        <span className="font-medium">{player.name}</span>
       </div>
       <Button onClick={() => onToggleReady(player.id)} disabled={isReady}>
         Ready
