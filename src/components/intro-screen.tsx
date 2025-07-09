@@ -25,7 +25,7 @@ const NorthDunneLogo = () => (
 const NeoGamesLogo = () => (
     <div className="w-32 h-32 relative mb-4 rounded-full overflow-hidden">
         <Image 
-            src="https://placehold.co/128x128.png"
+            src="https://sdmntprwestus.oaiusercontent.com/files/00000000-ac18-6230-a932-b4be71918eac/raw?se=2025-07-10T00%3A22%3A15Z&sp=r&sv=2024-08-04&sr=b&scid=d6a23786-9079-59e3-9f62-0e8ac3580a67&skoid=c156db82-7a33-468f-9cdd-06af263ceec8&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-07-09T20%3A27%3A06Z&ske=2025-07-10T20%3A27%3A06Z&sks=b&skv=2024-08-04&sig=OIc7ZMDbzcqlrwku8nGuDeN6rQI2qntH2BXAOr%2BNHzs%3D"
             alt="Neo Games Logo"
             layout="fill"
             objectFit="contain"
