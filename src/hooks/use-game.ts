@@ -5,6 +5,7 @@ import type {
   GameState,
   Player,
   Ship,
+  PlayerStats,
 } from '@/lib/game';
 import {
   SHIP_TYPES,
@@ -12,11 +13,18 @@ import {
   canPlaceShip,
 } from '@/lib/game';
 
+const initialStats = (): PlayerStats => ({
+    shotsFired: 0,
+    hits: 0,
+    misses: 0,
+});
+
 const initialPlayer = (id: 1 | 2): Player => ({
   id,
   name: `Player ${id}`,
   board: createEmptyBoard(),
   ships: [],
+  stats: initialStats(),
 });
 
 const getInitialState = (): GameState => ({
@@ -208,6 +216,7 @@ export const useGame = () => {
       if (prev.phase !== 'battle' || prev.isTransitioning) return prev;
 
       const { currentPlayerId, players } = prev;
+      const currentPlayer = players[currentPlayerId - 1];
       const opponentId = currentPlayerId === 1 ? 2 : 1;
       const opponent = players[opponentId - 1];
 
@@ -218,11 +227,15 @@ export const useGame = () => {
       const newOpponentBoard = opponent.board.map(row => [...row]);
       let resultMessage = '';
       let newOpponentShips = [...opponent.ships];
-      let hitShip = false;
+
+      const newCurrentPlayerStats: PlayerStats = {
+          ...currentPlayer.stats,
+          shotsFired: currentPlayer.stats.shotsFired + 1,
+      }
 
       if (opponent.board[y][x] === 'ship') {
         newOpponentBoard[y][x] = 'hit';
-        hitShip = true;
+        newCurrentPlayerStats.hits += 1;
         let allShipsSunk = true;
 
         newOpponentShips = opponent.ships.map(ship => {
@@ -243,8 +256,12 @@ export const useGame = () => {
         allShipsSunk = newOpponentShips.every(ship => ship.sunk);
 
         if (allShipsSunk) {
+            const newPlayers: [Player, Player] = [...players];
+            newPlayers[currentPlayerId-1] = {...currentPlayer, stats: newCurrentPlayerStats };
+
             return {
                 ...prev,
+                players: newPlayers,
                 phase: 'gameover',
                 winner: players[currentPlayerId - 1],
                 message: `Game Over. ${players[currentPlayerId - 1].name} is the winner.`,
@@ -254,12 +271,16 @@ export const useGame = () => {
         }
       } else {
         newOpponentBoard[y][x] = 'miss';
+        newCurrentPlayerStats.misses += 1;
         resultMessage = "Shot missed.";
       }
 
       const newOpponent: Player = { ...opponent, board: newOpponentBoard, ships: newOpponentShips };
+      const newCurrentPlayer: Player = { ...currentPlayer, stats: newCurrentPlayerStats };
+
       const newPlayers: [Player, Player] = [...players];
       newPlayers[opponentId-1] = newOpponent;
+      newPlayers[currentPlayerId-1] = newCurrentPlayer;
       
       return {
         ...prev,

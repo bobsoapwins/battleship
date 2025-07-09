@@ -4,7 +4,8 @@ import type { FC } from 'react';
 import { PartyPopper } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import type { GamePhase } from '@/lib/game';
+import type { GamePhase, Player } from '@/lib/game';
+import { GameStats } from './game-stats';
 
 interface GameStatusProps {
   phase: GamePhase;
@@ -13,9 +14,10 @@ interface GameStatusProps {
   onStartNextPlacement?: () => void;
   isTransitioning?: boolean;
   onConfirmShot?: () => void;
+  players?: [Player, Player];
 }
 
-export const GameStatus: FC<GameStatusProps> = ({ phase, message, onReset, onStartNextPlacement, isTransitioning, onConfirmShot }) => {
+export const GameStatus: FC<GameStatusProps> = ({ phase, message, onReset, onStartNextPlacement, isTransitioning, onConfirmShot, players }) => {
   const renderTitle = () => {
     if (phase === 'gameover') return 'Game Over';
     if (isTransitioning && phase === 'battle') {
@@ -30,7 +32,7 @@ export const GameStatus: FC<GameStatusProps> = ({ phase, message, onReset, onSta
   }
 
   return (
-    <Card className="text-center w-full max-w-md mx-auto">
+    <Card className="text-center w-full max-w-2xl mx-auto">
       <CardHeader>
         <CardTitle className="font-headline text-3xl">
           {renderTitle()}
@@ -41,9 +43,10 @@ export const GameStatus: FC<GameStatusProps> = ({ phase, message, onReset, onSta
             : message}
         </CardDescription>
       </CardHeader>
-      {phase === 'gameover' && (
+      {phase === 'gameover' && players && (
         <CardContent className="flex flex-col items-center gap-4">
           <PartyPopper className="w-16 h-16 text-primary" />
+          <GameStats players={players} />
           <Button onClick={onReset}>Play Again</Button>
         </CardContent>
       )}

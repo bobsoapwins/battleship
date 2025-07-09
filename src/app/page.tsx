@@ -182,6 +182,7 @@ export default function Home() {
           onStartNextPlacement={startNextPlacement}
           isTransitioning={isTransitioning}
           onConfirmShot={confirmShotAndSwitchTurn}
+          players={players}
         />
       </div>
       <div className="w-full">

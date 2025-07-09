@@ -24,11 +24,18 @@ export type CellType = 'empty' | 'ship' | 'hit' | 'miss';
 
 export type Board = CellType[][];
 
+export type PlayerStats = {
+    shotsFired: number;
+    hits: number;
+    misses: number;
+}
+
 export type Player = {
   id: 1 | 2;
   name: string;
   board: Board;
   ships: Ship[];
+  stats: PlayerStats;
 };
 
 export type GamePhase = 'setup' | 'placement' | 'intermission' | 'pre-battle' | 'battle' | 'gameover';
