@@ -47,7 +47,7 @@ export const AIInsights = ({
     <div className="w-full my-4">
       <h3 className="text-xl font-headline mb-4 flex items-center gap-2">
         <Bot className="w-6 h-6" />
-        Commander's Insights
+        NeoAI Insights
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <InsightCard
