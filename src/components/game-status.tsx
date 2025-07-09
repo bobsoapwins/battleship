@@ -15,9 +15,10 @@ interface GameStatusProps {
   isTransitioning?: boolean;
   onConfirmShot?: () => void;
   players?: [Player, Player];
+  winner: Player | null;
 }
 
-export const GameStatus: FC<GameStatusProps> = ({ phase, message, onReset, onStartNextPlacement, isTransitioning, onConfirmShot, players }) => {
+export const GameStatus: FC<GameStatusProps> = ({ phase, message, onReset, onStartNextPlacement, isTransitioning, onConfirmShot, players, winner }) => {
   const renderTitle = () => {
     if (phase === 'gameover') return 'Game Over';
     if (isTransitioning && phase === 'battle') {
@@ -43,7 +44,7 @@ export const GameStatus: FC<GameStatusProps> = ({ phase, message, onReset, onSta
             : message}
         </CardDescription>
       </CardHeader>
-      {phase === 'gameover' && players && (
+      {phase === 'gameover' && players && winner && (
         <CardContent className="flex flex-col items-center gap-4">
           <PartyPopper className="w-16 h-16 text-primary" />
           <GameStats players={players} />

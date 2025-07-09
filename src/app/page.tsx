@@ -11,6 +11,10 @@ import { SetupScreen } from '@/components/setup-screen';
 import { BootupScreen } from '@/components/bootup-screen';
 import { ReadyUpScreen } from '@/components/ready-up-screen';
 import { Terminal } from '@/components/terminal';
+import type { GameAnalysisInput, GameAnalysisOutput } from '@/ai/flows/game-analysis-flow';
+import { getGameAnalysis } from '@/ai/flows/game-analysis-flow';
+import { AIInsights } from '@/components/ai-insights';
+
 
 const GameBoard = dynamic(() => import('@/components/game-board').then(mod => mod.GameBoard), {
   ssr: false,
@@ -20,15 +24,44 @@ const GameBoard = dynamic(() => import('@/components/game-board').then(mod => mo
 
 export default function Home() {
   const { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin } = useGame();
-  const { phase, players, currentPlayerId, message, placementState, isTransitioning, shotResult, readyStates } = gameState;
+  const { phase, players, currentPlayerId, message, placementState, isTransitioning, shotResult, readyStates, winner } = gameState;
   const [isClient, setIsClient] = useState(false);
   const [isBootingUp, setIsBootingUp] = useState(true);
   const [revealOpponent, setRevealOpponent] = useState(false);
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
+  const [insights, setInsights] = useState<GameAnalysisOutput | null>(null);
+  const [isLoadingInsights, setIsLoadingInsights] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  useEffect(() => {
+    if (phase === 'gameover' && winner && !insights && !isLoadingInsights) {
+        const fetchInsights = async () => {
+            setIsLoadingInsights(true);
+            try {
+                const input: GameAnalysisInput = {
+                    player1: { name: players[0].name, ...players[0].stats },
+                    player2: { name: players[1].name, ...players[1].stats },
+                    winnerName: winner.name,
+                };
+                const result = await getGameAnalysis(input);
+                setInsights(result);
+            } catch (error) {
+                console.error("Failed to get AI insights:", error);
+                // Optionally set some error state to display to the user
+            } finally {
+                setIsLoadingInsights(false);
+            }
+        };
+        fetchInsights();
+    }
+    if (phase !== 'gameover') {
+        setInsights(null);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, winner]);
   
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -146,7 +179,13 @@ export default function Home() {
       case 'battle':
         return renderBattlePhase();
       case 'gameover':
-        return null; // Handled by GameStatus
+         return (
+          <AIInsights
+            players={players}
+            insights={insights}
+            isLoading={isLoadingInsights}
+          />
+        );
       case 'intermission':
         return null; // Handled by GameStatus
       case 'pre-battle':
@@ -186,6 +225,7 @@ export default function Home() {
           isTransitioning={isTransitioning}
           onConfirmShot={confirmShotAndSwitchTurn}
           players={players}
+          winner={winner}
         />
       </div>
       <div className="w-full">
