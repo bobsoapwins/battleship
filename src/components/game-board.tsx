@@ -13,9 +13,10 @@ interface GameBoardProps {
   isPlayerBoard: boolean;
   disabled?: boolean;
   lastShot?: { x: number; y: number } | null;
+  revealShips?: boolean;
 }
 
-export const GameBoard: FC<GameBoardProps> = ({ boardData, ships, onCellClick, isPlayerBoard, disabled = false, lastShot }) => {
+export const GameBoard: FC<GameBoardProps> = ({ boardData, ships, onCellClick, isPlayerBoard, disabled = false, lastShot, revealShips = false }) => {
   
   const getShipAt = (x: number, y: number) => {
     return ships.find(ship => ship.positions.some(pos => pos.x === x && pos.y === y));
@@ -35,7 +36,7 @@ export const GameBoard: FC<GameBoardProps> = ({ boardData, ships, onCellClick, i
       case 'miss':
         return <Waves className="w-5 h-5 text-white/70" />;
       case 'ship':
-        if (isPlayerBoard) {
+        if (isPlayerBoard || revealShips) {
           return <ShipIcon className="w-5 h-5 text-primary-foreground/80" />;
         }
         return null; // Hide opponent ships
@@ -51,6 +52,7 @@ export const GameBoard: FC<GameBoardProps> = ({ boardData, ships, onCellClick, i
           const ship = getShipAt(x, y);
           const isShipSunk = isSunk(ship);
           const isLastShot = lastShot?.x === x && lastShot.y === y;
+          const showShip = isPlayerBoard || (revealShips && cell === 'ship');
           
           return (
             <div
@@ -59,7 +61,7 @@ export const GameBoard: FC<GameBoardProps> = ({ boardData, ships, onCellClick, i
               className={cn(
                 'w-full h-full rounded-sm flex items-center justify-center aspect-square transition-colors duration-200 relative',
                 disabled ? 'cursor-not-allowed' : 'cursor-pointer hover:bg-accent/50',
-                cell === 'ship' && isPlayerBoard ? 'bg-primary/80' : 'bg-primary/40',
+                showShip ? 'bg-primary/80' : 'bg-primary/40',
                 cell === 'hit' && 'bg-red-500/80',
                 isShipSunk && 'bg-red-800/80',
                 cell === 'miss' && 'bg-blue-300/50',

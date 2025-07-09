@@ -21,9 +21,24 @@ export default function Home() {
   const { phase, players, currentPlayerId, message, placementState, isTransitioning, shotResult } = gameState;
   const [isClient, setIsClient] = useState(false);
   const [isBootingUp, setIsBootingUp] = useState(true);
+  const [revealOpponent, setRevealOpponent] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
+  }, []);
+  
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'Tab') {
+        e.preventDefault();
+        setRevealOpponent(prev => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   const currentPlayer = players[currentPlayerId - 1];
@@ -85,6 +100,7 @@ export default function Home() {
             isPlayerBoard={false}
             disabled={phase !== 'battle' || isTransitioning}
             lastShot={shotResult}
+            revealShips={revealOpponent}
           />
         </div>
       </div>
