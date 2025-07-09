@@ -45,8 +45,7 @@ export const IntroScreen = ({ onComplete }: IntroScreenProps) => {
       () => setPhase('neoGames'),   // Fade in Neo Games
       () => setPhase('black2'),     // Fade to black
       () => setPhase('battleship'), // Fade in Battleship title
-      () => setPhase('done'),       // Fade out to black
-      onComplete,                   // Complete
+      () => setPhase('done'),       // Fade out to black, then complete
     ];
 
     let currentIndex = 0;
@@ -57,15 +56,26 @@ export const IntroScreen = ({ onComplete }: IntroScreenProps) => {
       } else {
         clearInterval(interval);
       }
-    }, 2000); // Shortened duration for a better feel
+    }, 2000); 
 
     return () => clearInterval(interval);
-  }, [onComplete]);
+  }, []);
+
+  useEffect(() => {
+    if (phase === 'done') {
+        const timer = setTimeout(onComplete, 1000); // Wait for fade-out to complete
+        return () => clearTimeout(timer);
+    }
+  }, [phase, onComplete]);
+
 
   const isVisible = (p: AnimationPhase) => phase === p;
 
   return (
-    <div className="bg-black text-neutral-200 min-h-screen w-full flex items-center justify-center overflow-hidden">
+    <div className={cn(
+        "bg-black text-neutral-200 min-h-screen w-full flex items-center justify-center overflow-hidden transition-opacity duration-1000",
+        phase === 'done' ? 'opacity-0' : 'opacity-100'
+    )}>
       <div className={cn(
         'absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-1000',
         isVisible('northDunne') ? 'opacity-100' : 'opacity-0'
