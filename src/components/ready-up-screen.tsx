@@ -46,7 +46,7 @@ export const ReadyUpScreen = ({ players, readyStates, onToggleReady, onStartBatt
 
         {allReady && (
           <div className="pt-4 flex flex-col items-center gap-2">
-            <p className="text-sm text-muted-foreground">All players are ready!</p>
+            <p className="text-sm text-muted-foreground">{players[0].name} may start the battle.</p>
             <Button onClick={onStartBattle} size="lg">
               Start Battle
             </Button>
