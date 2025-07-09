@@ -78,7 +78,10 @@ export default function Home() {
     return (
       <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
         {/* My Board */}
-        <div className={cn("w-full lg:w-1/2 p-4 rounded-xl transition-all duration-500", phase === 'battle' && !isTransitioning ? 'opacity-50' : '')}>
+        <div className={cn(
+          "w-full lg:w-1/2 p-4 rounded-xl transition-opacity duration-500",
+          isTransitioning ? "opacity-0" : "opacity-50"
+        )}>
           <h2 className="text-2xl font-headline mb-4 text-center">{`${currentPlayer.name}'s Fleet (You)`}</h2>
           <GameBoard
             boardData={currentPlayer.board}
