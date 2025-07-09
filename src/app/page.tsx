@@ -32,10 +32,18 @@ export default function Home() {
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const [insights, setInsights] = useState<GameAnalysisOutput | null>(null);
   const [isLoadingInsights, setIsLoadingInsights] = useState(false);
+  const [gameVisible, setGameVisible] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  useEffect(() => {
+    if (currentScreen === 'game') {
+      const timer = setTimeout(() => setGameVisible(true), 100);
+      return () => clearTimeout(timer);
+    }
+  }, [currentScreen]);
 
   useEffect(() => {
     if (phase === 'gameover' && winner && !insights && !isLoadingInsights) {
@@ -211,16 +219,22 @@ export default function Home() {
     return <IntroScreen onComplete={() => setCurrentScreen('game')} />;
   }
 
+  const mainContentClass = cn(
+    "container mx-auto p-4 md:p-8 min-h-screen flex flex-col items-center",
+    "transition-opacity duration-1000",
+    gameVisible ? "opacity-100" : "opacity-0"
+  );
+  
   if (phase === 'setup') {
     return (
-      <main className="container mx-auto p-4 md:p-8 min-h-screen flex flex-col items-center justify-center">
+      <main className={cn(mainContentClass, "justify-center")}>
         <SetupScreen onGameStart={setPlayerNames} />
       </main>
     );
   }
 
   return (
-    <main className="container mx-auto p-4 md:p-8 min-h-screen flex flex-col items-center">
+    <main className={mainContentClass}>
       <div className="w-full mb-8">
         <GameStatus
           phase={phase}
