@@ -99,7 +99,6 @@ export const IntroScreen = ({ onComplete }: IntroScreenProps) => {
         isVisible('battleship') ? 'opacity-100' : 'opacity-0'
       )}>
         <h1 className="font-headline text-6xl tracking-widest uppercase">Battleship</h1>
-        <p className="text-xl text-neutral-400 mt-2">Web Version</p>
       </div>
     </div>
   );
