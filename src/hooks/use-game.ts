@@ -169,7 +169,7 @@ export const useGame = () => {
             ...prev,
             readyStates: {
                 ...prev.readyStates,
-                [key]: !prev.readyStates[key],
+                [key]: true,
             }
         }
     })
@@ -182,8 +182,8 @@ export const useGame = () => {
             ...prev,
             phase: 'battle',
             currentPlayerId: 1,
-            isTransitioning: true, // Start in transition to hide board
-            message: `Hand device to ${prev.players[0].name}. Press continue to start your turn.`
+            isTransitioning: false,
+            message: `${prev.players[0].name}, your turn.`
         }
     })
   }, []);
