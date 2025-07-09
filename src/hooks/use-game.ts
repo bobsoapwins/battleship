@@ -32,6 +32,10 @@ const getInitialState = (): GameState => ({
   },
   isTransitioning: false,
   shotResult: null,
+  readyStates: {
+      player1: false,
+      player2: false,
+  }
 });
 
 export const useGame = () => {
@@ -133,9 +137,8 @@ export const useGame = () => {
           return {
             ...prev,
             players: newPlayers,
-            phase: 'battle',
-            currentPlayerId: 1,
-            message: `All fleets are placed. ${newPlayers[0].name} may fire.`,
+            phase: 'pre-battle',
+            message: 'All fleets are placed. Ready for battle!',
           };
         }
       }
@@ -154,6 +157,33 @@ export const useGame = () => {
                 orientation: 'horizontal',
             },
             message: `${prev.players[1].name}, place your fleet.`,
+        }
+    })
+  }, []);
+
+  const togglePlayerReady = useCallback((playerId: 1 | 2) => {
+    setGameState(prev => {
+        if (prev.phase !== 'pre-battle') return prev;
+        const key = `player${playerId}` as keyof typeof prev.readyStates;
+        return {
+            ...prev,
+            readyStates: {
+                ...prev.readyStates,
+                [key]: !prev.readyStates[key],
+            }
+        }
+    })
+  }, []);
+
+  const startBattle = useCallback(() => {
+    setGameState(prev => {
+        if(prev.phase !== 'pre-battle' || !prev.readyStates.player1 || !prev.readyStates.player2) return prev;
+        return {
+            ...prev,
+            phase: 'battle',
+            currentPlayerId: 1,
+            isTransitioning: true, // Start in transition to hide board
+            message: `Hand device to ${prev.players[0].name}. Press continue to start your turn.`
         }
     })
   }, []);
@@ -241,5 +271,5 @@ export const useGame = () => {
     });
   }, []);
 
-  return { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn };
+  return { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle };
 };

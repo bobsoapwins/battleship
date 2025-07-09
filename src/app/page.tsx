@@ -9,6 +9,7 @@ import { SHIP_TYPES } from '@/lib/game';
 import { cn } from '@/lib/utils';
 import { SetupScreen } from '@/components/setup-screen';
 import { BootupScreen } from '@/components/bootup-screen';
+import { ReadyUpScreen } from '@/components/ready-up-screen';
 
 const GameBoard = dynamic(() => import('@/components/game-board').then(mod => mod.GameBoard), {
   ssr: false,
@@ -17,8 +18,8 @@ const GameBoard = dynamic(() => import('@/components/game-board').then(mod => mo
 
 
 export default function Home() {
-  const { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn } = useGame();
-  const { phase, players, currentPlayerId, message, placementState, isTransitioning, shotResult } = gameState;
+  const { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle } = useGame();
+  const { phase, players, currentPlayerId, message, placementState, isTransitioning, shotResult, readyStates } = gameState;
   const [isClient, setIsClient] = useState(false);
   const [isBootingUp, setIsBootingUp] = useState(true);
   const [revealOpponent, setRevealOpponent] = useState(false);
@@ -120,9 +121,18 @@ export default function Home() {
       case 'battle':
         return renderBattlePhase();
       case 'gameover':
-        return null;
+        return null; // Handled by GameStatus
       case 'intermission':
-        return null; // The GameStatus component handles this case.
+        return null; // Handled by GameStatus
+      case 'pre-battle':
+        return (
+          <ReadyUpScreen
+            players={players}
+            readyStates={readyStates}
+            onToggleReady={togglePlayerReady}
+            onStartBattle={startBattle}
+          />
+        );
       default:
         return null;
     }

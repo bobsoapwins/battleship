@@ -31,7 +31,12 @@ export type Player = {
   ships: Ship[];
 };
 
-export type GamePhase = 'setup' | 'placement' | 'battle' | 'intermission' | 'gameover';
+export type GamePhase = 'setup' | 'placement' | 'intermission' | 'pre-battle' | 'battle' | 'gameover';
+
+export type ReadyStates = {
+    player1: boolean;
+    player2: boolean;
+}
 
 export interface GameState {
   phase: GamePhase;
@@ -46,6 +51,7 @@ export interface GameState {
   };
   isTransitioning: boolean;
   shotResult: { x: number; y: number } | null;
+  readyStates: ReadyStates;
 }
 
 export const createEmptyBoard = (): Board =>
