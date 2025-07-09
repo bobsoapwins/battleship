@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -8,7 +9,7 @@ interface IntroScreenProps {
   onComplete: () => void;
 }
 
-type AnimationPhase = 'idle' | 'northDunne' | 'neoGames' | 'done';
+type AnimationPhase = 'idle' | 'northDunne' | 'neoGames' | 'battleship' | 'done';
 
 const NorthDunneLogo = () => (
     <div className="w-32 h-32 relative mb-4 rounded-full overflow-hidden">
@@ -41,6 +42,7 @@ export const IntroScreen = ({ onComplete }: IntroScreenProps) => {
     const sequence = [
       () => setPhase('northDunne'), // Show North Dunne
       () => setPhase('neoGames'),   // Show Neo Games
+      () => setPhase('battleship'), // Show Battleship title
       () => setPhase('done'),       // Fade out
       () => onComplete(),           // Complete
     ];
@@ -78,6 +80,14 @@ export const IntroScreen = ({ onComplete }: IntroScreenProps) => {
         <NeoGamesLogo />
         <p className="text-lg text-neutral-400">in association with</p>
         <p className="font-headline text-2xl tracking-wider">Neo Games</p>
+      </div>
+
+      <div className={cn(
+        'absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-1000',
+        isVisible('battleship') ? 'opacity-100' : 'opacity-0'
+      )}>
+        <h1 className="font-headline text-6xl tracking-widest uppercase">Battleship</h1>
+        <p className="text-xl text-neutral-400 mt-2">Web Version</p>
       </div>
     </div>
   );
