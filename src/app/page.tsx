@@ -19,7 +19,7 @@ const GameBoard = dynamic(() => import('@/components/game-board').then(mod => mo
 
 
 export default function Home() {
-  const { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle } = useGame();
+  const { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin } = useGame();
   const { phase, players, currentPlayerId, message, placementState, isTransitioning, shotResult, readyStates } = gameState;
   const [isClient, setIsClient] = useState(false);
   const [isBootingUp, setIsBootingUp] = useState(true);
@@ -60,6 +60,9 @@ export default function Home() {
   const handleTerminalCommand = (command: string) => {
     if (command.toLowerCase() === '/cheat') {
       setRevealOpponent(prev => !prev);
+    }
+    if (command.toLowerCase() === '/end') {
+        forceWin(1);
     }
     setIsTerminalOpen(false);
   };

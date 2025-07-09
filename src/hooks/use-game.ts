@@ -292,5 +292,29 @@ export const useGame = () => {
     });
   }, []);
 
-  return { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle };
+  const forceWin = useCallback((playerId: 1 | 2) => {
+    setGameState(prev => {
+        if (prev.phase === 'gameover') return prev;
+        const winner = prev.players[playerId - 1];
+        const newPlayers: [Player, Player] = [...prev.players];
+        const winnerIndex = newPlayers.findIndex(p => p.id === playerId);
+        if (winnerIndex !== -1) {
+            newPlayers[winnerIndex] = {
+                ...newPlayers[winnerIndex],
+                ships: newPlayers[winnerIndex].ships.map(s => ({...s, sunk: true}))
+            }
+        }
+
+        return {
+            ...prev,
+            players: newPlayers,
+            phase: 'gameover',
+            winner: winner,
+            message: `Game Over. ${winner.name} is the winner.`,
+            isTransitioning: false,
+        }
+    })
+  }, []);
+
+  return { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin };
 };
