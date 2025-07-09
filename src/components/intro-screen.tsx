@@ -11,7 +11,7 @@ interface IntroScreenProps {
 type AnimationPhase = 'idle' | 'northDunne' | 'neoGames' | 'done';
 
 const NorthDunneLogo = () => (
-    <div className="w-32 h-32 relative mb-4">
+    <div className="w-32 h-32 relative mb-4 rounded-full overflow-hidden">
         <Image 
             src="https://lh3.googleusercontent.com/a/ACg8ocKxic4LJaO2wgscGUK2Njli4A-zFtUOD_GxfsBSCZ_HuYlS3ZEr=s360-c-no" 
             alt="North Dunne Logo"
@@ -23,7 +23,7 @@ const NorthDunneLogo = () => (
 );
 
 const NeoGamesLogo = () => (
-    <div className="w-32 h-32 relative mb-4">
+    <div className="w-32 h-32 relative mb-4 rounded-full overflow-hidden">
         <Image 
             src="https://placehold.co/128x128.png"
             alt="Neo Games Logo"
