@@ -14,6 +14,7 @@ import { Terminal } from '@/components/terminal';
 import type { GameAnalysisInput, GameAnalysisOutput } from '@/ai/flows/game-analysis-flow';
 import { getGameAnalysis } from '@/ai/flows/game-analysis-flow';
 import { AIInsights } from '@/components/ai-insights';
+import { IntroScreen } from '@/components/intro-screen';
 
 
 const GameBoard = dynamic(() => import('@/components/game-board').then(mod => mod.GameBoard), {
@@ -26,7 +27,7 @@ export default function Home() {
   const { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin } = useGame();
   const { phase, players, currentPlayerId, message, placementState, isTransitioning, shotResult, readyStates, winner } = gameState;
   const [isClient, setIsClient] = useState(false);
-  const [isBootingUp, setIsBootingUp] = useState(true);
+  const [currentScreen, setCurrentScreen] = useState<'booting' | 'intro' | 'game'>('booting');
   const [revealOpponent, setRevealOpponent] = useState(false);
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const [insights, setInsights] = useState<GameAnalysisOutput | null>(null);
@@ -202,8 +203,12 @@ export default function Home() {
     }
   };
   
-  if (isBootingUp) {
-    return <BootupScreen onComplete={() => setIsBootingUp(false)} />;
+  if (currentScreen === 'booting') {
+    return <BootupScreen onComplete={() => setCurrentScreen('intro')} />;
+  }
+
+  if (currentScreen === 'intro') {
+    return <IntroScreen onComplete={() => setCurrentScreen('game')} />;
   }
 
   if (phase === 'setup') {
