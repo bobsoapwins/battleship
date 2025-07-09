@@ -20,6 +20,7 @@ interface GameStatusProps {
 
 export const GameStatus: FC<GameStatusProps> = ({ phase, message, onReset, onStartNextPlacement, isTransitioning, onConfirmShot, players, winner }) => {
   const renderTitle = () => {
+    if (phase === 'gameover' && winner) return `${winner.name} Wins!`;
     if (phase === 'gameover') return 'Game Over';
     if (isTransitioning && phase === 'battle') {
         if (message.toLowerCase().includes('hit') || message.toLowerCase().includes('sunk')) {
