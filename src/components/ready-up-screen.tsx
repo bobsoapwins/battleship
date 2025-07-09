@@ -25,8 +25,8 @@ export const ReadyUpScreen = ({ players, readyStates, onToggleReady, onStartBatt
         )}
         <span className="font-medium">{player.name}</span>
       </div>
-      <Button onClick={() => onToggleReady(player.id)} variant={isReady ? 'secondary' : 'default'}>
-        {isReady ? 'Not Ready' : 'Ready Up'}
+      <Button onClick={() => onToggleReady(player.id)} disabled={isReady}>
+        Ready
       </Button>
     </div>
   );
