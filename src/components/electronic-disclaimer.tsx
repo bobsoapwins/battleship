@@ -47,7 +47,7 @@ export function ElectronicDisclaimer({ open, onProceed, onBack }: ElectronicDisc
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onBack}>Change Gamemode</AlertDialogCancel>
+          <AlertDialogCancel onClick={onBack}>Wait, nevermind</AlertDialogCancel>
           <AlertDialogAction onClick={onProceed}>Proceed</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
