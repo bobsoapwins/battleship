@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
@@ -12,6 +13,7 @@ import type {
   ActiveAbility,
   AbilitiesState,
   Board,
+  Orientation,
 } from '@/lib/game';
 import {
   SHIP_TYPES,
@@ -30,6 +32,7 @@ const initialAbilities = (): AbilitiesState => ({
   sonar: { uses: 2, cooldown: 0 },
   tomahawk: { uses: 1, cooldown: 0 },
   mine: { uses: 2, cooldown: 0 },
+  submarineTorpedo: { uses: 1, cooldown: 0},
 });
 
 const initialPlayer = (id: 1 | 2): Player => ({
@@ -112,7 +115,7 @@ export const useGame = () => {
       const { playerToPlace } = prev.placementState;
       const currentPlayer = prev.players[playerToPlace - 1];
 
-      if (prev.gameMode === 'electronic' && prev.activeAbility === 'mine') {
+      if (prev.gameMode === 'ability' && prev.activeAbility === 'mine') {
           if(currentPlayer.board[y][x] !== 'empty') {
             return { ...prev, message: 'Cannot place a mine on a ship.' };
           }
@@ -158,6 +161,7 @@ export const useGame = () => {
         positions: [],
         hits: [],
         sunk: false,
+        orientation,
       };
 
       for (let i = 0; i < shipType.size; i++) {
@@ -306,11 +310,18 @@ export const useGame = () => {
     setGameState(prev => {
       if (prev.phase !== 'battle' && prev.phase !== 'placement') return prev;
       if (prev.isTransitioning) return prev;
-      if (prev.gameMode !== 'electronic') return prev;
+      if (prev.gameMode !== 'ability') return prev;
       
       const currentPlayer = prev.players[prev.currentPlayerId - 1];
       if (ability && (!currentPlayer.abilities[ability] || currentPlayer.abilities[ability].uses <= 0)) {
         return { ...prev, message: `No uses of ${ability} left.` };
+      }
+
+      if (ability === 'submarineTorpedo') {
+          const sub = currentPlayer.ships.find(s => s.name === 'Submarine');
+          if (!sub || sub.sunk) {
+              return { ...prev, message: "Submarine is sunk. Torpedo unavailable."};
+          }
       }
 
       const isPlacementMine = prev.phase === 'placement' && ability === 'mine';
@@ -388,6 +399,10 @@ export const useGame = () => {
         let newPlayers: [Player, Player] = [...players];
         let transitionMessage = '';
         let shotResults: Point[] = [];
+        let currentOpponent = { ...newPlayers[opponentId - 1] };
+        
+        let newCurrentPlayer = {...currentPlayer, abilities: {...currentPlayer.abilities, [activeAbility]: { ...currentPlayer.abilities[activeAbility], uses: currentPlayer.abilities[activeAbility]!.uses - 1}}};
+        newPlayers[currentPlayerId-1] = newCurrentPlayer;
 
         if (activeAbility === 'sonar') {
           const scannedArea: Point[] = [];
@@ -400,21 +415,13 @@ export const useGame = () => {
               }
             }
           }
-          const newCurrentPlayer = {
-            ...currentPlayer,
-            abilities: {...currentPlayer.abilities, sonar: { ...currentPlayer.abilities.sonar, uses: currentPlayer.abilities.sonar.uses - 1}},
-            scannedArea: [...(currentPlayer.scannedArea || []), ...scannedArea],
-          };
+          newCurrentPlayer.scannedArea = [...(newCurrentPlayer.scannedArea || []), ...scannedArea];
           newPlayers[currentPlayerId-1] = newCurrentPlayer;
           return { ...prev, players: newPlayers, activeAbility: null, isTransitioning: true, message: 'Scan complete. Area revealed.' };
         }
 
         if(activeAbility === 'tomahawk') {
             transitionMessage = 'Tomahawk strike launched!';
-            const newCurrentPlayer = {...currentPlayer, abilities: {...currentPlayer.abilities, tomahawk: { ...currentPlayer.abilities.tomahawk, uses: currentPlayer.abilities.tomahawk.uses - 1}}};
-            newPlayers[currentPlayerId-1] = newCurrentPlayer;
-            let currentOpponent = newPlayers[opponentId-1];
-
             for (let i = -1; i <= 1; i++) {
                 for (let j = -1; j <= 1; j++) {
                     const fireX = x + i;
@@ -428,6 +435,28 @@ export const useGame = () => {
             }
             newPlayers[opponentId-1] = currentOpponent;
         }
+
+        if (activeAbility === 'submarineTorpedo') {
+            transitionMessage = 'Submarine Torpedo fired!';
+            const submarine = currentPlayer.ships.find(s => s.name === 'Submarine');
+            if (submarine) {
+                if(submarine.orientation === 'horizontal') {
+                    for (let i = 0; i < GRID_SIZE; i++) {
+                        shotResults.push({x: i, y: submarine.positions[0].y});
+                        const { board, ships } = processShot(i, submarine.positions[0].y, currentOpponent.board, currentOpponent.ships, gameMode);
+                        currentOpponent = { ...currentOpponent, board, ships };
+                    }
+                } else { // vertical
+                    for (let i = 0; i < GRID_SIZE; i++) {
+                        shotResults.push({x: submarine.positions[0].x, y: i});
+                        const { board, ships } = processShot(submarine.positions[0].x, i, currentOpponent.board, currentOpponent.ships, gameMode);
+                        currentOpponent = { ...currentOpponent, board, ships };
+                    }
+                }
+                newPlayers[opponentId-1] = currentOpponent;
+            }
+        }
+
 
         const allShipsSunk = newPlayers[opponentId - 1].ships.every(ship => ship.sunk);
         if (allShipsSunk) {

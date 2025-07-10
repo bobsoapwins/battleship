@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState } from 'react';
@@ -82,9 +83,9 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                             </Label>
                         </div>
                         <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="electronic" id="r4" />
+                            <RadioGroupItem value="ability" id="r4" />
                             <Label htmlFor="r4" className="font-normal">
-                                <span className="font-medium">Electronic</span>
+                                <span className="font-medium">Ability</span>
                                 <p className="text-xs text-muted-foreground">Use special abilities like Sonar Scan.</p>
                             </Label>
                         </div>

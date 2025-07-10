@@ -1,4 +1,5 @@
 
+
 export const GRID_SIZE = 10;
 
 export const SHIP_TYPES = [
@@ -14,8 +15,8 @@ export type Point = { x: number; y: number };
 export type ShipType = (typeof SHIP_TYPES)[number];
 export type ShipName = ShipType['name'];
 export type Orientation = 'horizontal' | 'vertical';
-export type GameMode = 'classic' | 'salvo' | 'nuclear' | 'electronic';
-export type ActiveAbility = 'sonar' | 'tomahawk' | 'mine' | null;
+export type GameMode = 'classic' | 'salvo' | 'nuclear' | 'ability';
+export type ActiveAbility = 'sonar' | 'tomahawk' | 'mine' | 'submarineTorpedo' | null;
 
 export interface Ship {
   name: ShipName;
@@ -23,6 +24,7 @@ export interface Ship {
   positions: Point[];
   hits: Point[];
   sunk: boolean;
+  orientation: Orientation;
 }
 
 export type CellType = 'empty' | 'ship' | 'hit' | 'miss' | 'mine';
@@ -39,6 +41,7 @@ export type AbilitiesState = {
   sonar: { uses: number; cooldown: number };
   tomahawk: { uses: number; cooldown: number };
   mine: { uses: number; cooldown: number };
+  submarineTorpedo: { uses: number; cooldown: number };
 };
 
 export type Player = {

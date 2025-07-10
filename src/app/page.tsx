@@ -19,7 +19,7 @@ import { AIInsights } from '@/components/ai-insights';
 import { IntroScreen } from '@/components/intro-screen';
 import type { GameMode } from '@/lib/game';
 import { Abilities } from '@/components/abilities';
-import { ElectronicDisclaimer } from '@/components/electronic-disclaimer';
+import { AbilityDisclaimer } from '@/components/ability-disclaimer';
 
 
 const GameBoard = dynamic(() => import('@/components/game-board').then(mod => mod.GameBoard), {
@@ -38,7 +38,7 @@ export default function Home() {
   const [insights, setInsights] = useState<GameAnalysisOutput | null>(null);
   const [isLoadingInsights, setIsLoadingInsights] = useState(false);
   const [gameVisible, setGameVisible] = useState(false);
-  const [showElectronicDisclaimer, setShowElectronicDisclaimer] = useState(false);
+  const [showAbilityDisclaimer, setShowAbilityDisclaimer] = useState(false);
   const [pendingGameSettings, setPendingGameSettings] = useState<{ p1: string; p2: string; mode: GameMode } | null>(null);
 
   useEffect(() => {
@@ -136,9 +136,9 @@ export default function Home() {
   const opponentPlayer = players[currentPlayerId === 1 ? 1 : 0];
 
   const handleGameStart = (player1Name: string, player2Name: string, mode: GameMode) => {
-    if (mode === 'electronic') {
+    if (mode === 'ability') {
       setPendingGameSettings({ p1: player1Name, p2: player2Name, mode });
-      setShowElectronicDisclaimer(true);
+      setShowAbilityDisclaimer(true);
     } else {
       setPlayerNames(player1Name, player2Name, mode);
     }
@@ -149,12 +149,12 @@ export default function Home() {
       setPlayerNames(pendingGameSettings.p1, pendingGameSettings.p2, pendingGameSettings.mode);
       setPendingGameSettings(null);
     }
-    setShowElectronicDisclaimer(false);
+    setShowAbilityDisclaimer(false);
   };
 
   const handleDisclaimerBack = () => {
     setPendingGameSettings(null);
-    setShowElectronicDisclaimer(false);
+    setShowAbilityDisclaimer(false);
   };
 
   const renderPlacementPhase = () => {
@@ -174,7 +174,7 @@ export default function Home() {
             totalShips={SHIP_TYPES.length}
             placementComplete={placementState.placementComplete}
           />
-          {gameMode === 'electronic' && (
+          {gameMode === 'ability' && (
             <div className="mt-4">
                <Abilities 
                 player={playerToPlace} 
@@ -237,7 +237,7 @@ export default function Home() {
               />
             </div>
           </div>
-          {gameMode === 'electronic' && phase === 'battle' && !isTransitioning && (
+          {gameMode === 'ability' && phase === 'battle' && !isTransitioning && (
             <div className="w-full max-w-2xl mx-auto">
               <Abilities player={currentPlayer} onToggleAbility={toggleAbility} activeAbility={activeAbility} />
             </div>
@@ -297,8 +297,8 @@ export default function Home() {
     return (
       <main className={cn(mainContentClass, "justify-center")}>
         <SetupScreen onGameStart={handleGameStart} />
-        <ElectronicDisclaimer
-          open={showElectronicDisclaimer}
+        <AbilityDisclaimer
+          open={showAbilityDisclaimer}
           onProceed={handleDisclaimerProceed}
           onBack={handleDisclaimerBack}
         />
