@@ -23,7 +23,7 @@ export function ElectronicDisclaimer({ open, onProceed, onBack }: ElectronicDisc
     <AlertDialog open={open}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle className="font-headline text-2xl">Electronic Warfare Engaged</AlertDialogTitle>
+          <AlertDialogTitle className="font-headline text-2xl">A small disclaimer</AlertDialogTitle>
           <AlertDialogDescription asChild>
             <div className="text-base text-left pt-2 space-y-2">
               <p>
