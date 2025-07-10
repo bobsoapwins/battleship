@@ -30,7 +30,7 @@ const GameBoard = dynamic(() => import('@/components/game-board').then(mod => mo
 
 export default function Home() {
   const { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin, endPlacement, toggleAbility } = useGame();
-  const { phase, players, currentPlayerId, message, placementState, isTransitioning, shotResult, readyStates, winner, gameMode, scannedArea, activeAbility } = gameState;
+  const { phase, players, currentPlayerId, message, placementState, isTransitioning, shotResult, readyStates, winner, gameMode, activeAbility } = gameState;
   const [isClient, setIsClient] = useState(false);
   const [currentScreen, setCurrentScreen] = useState<'booting' | 'intro' | 'game'>('booting');
   const [revealOpponent, setRevealOpponent] = useState(false);
@@ -232,7 +232,7 @@ export default function Home() {
                 lastShot={Array.isArray(shotResult) ? null : shotResult}
                 lastMultiShot={Array.isArray(shotResult) ? shotResult : null}
                 revealShips={revealOpponent}
-                scannedArea={scannedArea}
+                scannedArea={currentPlayer.scannedArea}
                 isUsingAbility={!!activeAbility}
               />
             </div>
@@ -332,5 +332,3 @@ export default function Home() {
     </main>
   );
 }
-
-    

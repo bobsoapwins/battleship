@@ -40,6 +40,7 @@ const initialPlayer = (id: 1 | 2): Player => ({
   stats: initialStats(),
   abilities: initialAbilities(),
   mines: [],
+  scannedArea: [],
 });
 
 const getInitialState = (): GameState => ({
@@ -62,7 +63,6 @@ const getInitialState = (): GameState => ({
       player2: false,
   },
   shotsRemaining: 1,
-  scannedArea: null,
   activeAbility: null,
 });
 
@@ -400,9 +400,13 @@ export const useGame = () => {
               }
             }
           }
-          const newCurrentPlayer = {...currentPlayer, abilities: {...currentPlayer.abilities, sonar: { ...currentPlayer.abilities.sonar, uses: currentPlayer.abilities.sonar.uses - 1}}};
+          const newCurrentPlayer = {
+            ...currentPlayer,
+            abilities: {...currentPlayer.abilities, sonar: { ...currentPlayer.abilities.sonar, uses: currentPlayer.abilities.sonar.uses - 1}},
+            scannedArea: [...(currentPlayer.scannedArea || []), ...scannedArea],
+          };
           newPlayers[currentPlayerId-1] = newCurrentPlayer;
-          return { ...prev, players: newPlayers, scannedArea: [...(prev.scannedArea || []), ...scannedArea], activeAbility: null, isTransitioning: true, message: 'Scan complete. Area revealed.' };
+          return { ...prev, players: newPlayers, activeAbility: null, isTransitioning: true, message: 'Scan complete. Area revealed.' };
         }
 
         if(activeAbility === 'tomahawk') {
@@ -590,5 +594,3 @@ export const useGame = () => {
 
   return { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin, endPlacement, toggleAbility };
 };
-
-    

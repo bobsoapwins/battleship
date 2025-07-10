@@ -106,7 +106,7 @@ export const GameBoard: FC<GameBoardProps> = ({
                 cell === 'hit' && 'bg-red-500/80',
                 isShipSunk && 'bg-red-800/80',
                 cell === 'miss' && 'bg-blue-300/50',
-                cellIsScanned && !revealShips && 'bg-accent/70 animate-pulse',
+                cellIsScanned && !revealShips && 'bg-accent/70',
                 wasLastShot && 'animate-shot z-10'
               )}
             >

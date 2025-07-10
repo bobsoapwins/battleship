@@ -49,6 +49,7 @@ export type Player = {
   stats: PlayerStats;
   abilities: AbilitiesState;
   mines: Point[];
+  scannedArea: Point[];
 };
 
 export type GamePhase = 'setup' | 'placement' | 'intermission' | 'pre-battle' | 'battle' | 'gameover';
@@ -77,7 +78,6 @@ export interface GameState {
   shotResult: Point | null | Point[];
   readyStates: ReadyStates;
   shotsRemaining: number;
-  scannedArea: Point[] | null;
   activeAbility: ActiveAbility;
 }
 
