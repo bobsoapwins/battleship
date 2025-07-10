@@ -18,6 +18,7 @@ import { AIInsights } from '@/components/ai-insights';
 import { IntroScreen } from '@/components/intro-screen';
 import type { GameMode } from '@/lib/game';
 import { Abilities } from '@/components/abilities';
+import { ElectronicDisclaimer } from '@/components/electronic-disclaimer';
 
 
 const GameBoard = dynamic(() => import('@/components/game-board').then(mod => mod.GameBoard), {
@@ -36,6 +37,8 @@ export default function Home() {
   const [insights, setInsights] = useState<GameAnalysisOutput | null>(null);
   const [isLoadingInsights, setIsLoadingInsights] = useState(false);
   const [gameVisible, setGameVisible] = useState(false);
+  const [showElectronicDisclaimer, setShowElectronicDisclaimer] = useState(false);
+  const [pendingGameSettings, setPendingGameSettings] = useState<{ p1: string; p2: string; mode: GameMode } | null>(null);
 
   useEffect(() => {
     setIsClient(true);
@@ -131,8 +134,27 @@ export default function Home() {
   const currentPlayer = players[currentPlayerId - 1];
   const opponentPlayer = players[currentPlayerId === 1 ? 1 : 0];
 
-  const handleGameStart = (player1Name: string, player2Name: string, gameMode: GameMode) => {
-    setPlayerNames(player1Name, player2Name, gameMode);
+  const handleGameStart = (player1Name: string, player2Name: string, mode: GameMode) => {
+    if (mode === 'electronic') {
+      setPendingGameSettings({ p1: player1Name, p2: player2Name, mode });
+      setShowElectronicDisclaimer(true);
+    } else {
+      setPlayerNames(player1Name, player2Name, mode);
+    }
+  };
+
+  const handleDisclaimerProceed = () => {
+    if (pendingGameSettings) {
+      setPlayerNames(pendingGameSettings.p1, pendingGameSettings.p2, pendingGameSettings.mode);
+      setPendingGameSettings(null);
+    }
+    setShowElectronicDisclaimer(false);
+  };
+
+  const handleDisclaimerBack = () => {
+    resetGame();
+    setPendingGameSettings(null);
+    setShowElectronicDisclaimer(false);
   };
 
   const renderPlacementPhase = () => {
@@ -275,6 +297,11 @@ export default function Home() {
     return (
       <main className={cn(mainContentClass, "justify-center")}>
         <SetupScreen onGameStart={handleGameStart} />
+        <ElectronicDisclaimer
+          open={showElectronicDisclaimer}
+          onProceed={handleDisclaimerProceed}
+          onBack={handleDisclaimerBack}
+        />
       </main>
     );
   }
