@@ -52,15 +52,10 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
   const [infoDialogOpen, setInfoDialogOpen] = useState(false);
   const [selectedModeInfo, setSelectedModeInfo] = useState(gameModeDetails.classic);
   const [showAbilityDisclaimer, setShowAbilityDisclaimer] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
 
   const handleGameModeChange = (newMode: GameMode) => {
     setGameMode(newMode);
-    if (newMode === 'ability') {
-        // The ability disclaimer is special and has its own component
-        return; 
-    }
-    setSelectedModeInfo(gameModeDetails[newMode]);
-    setInfoDialogOpen(true);
   };
   
   const handleStart = () => {
@@ -68,15 +63,22 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
     if (gameMode === 'ability') {
       setShowAbilityDisclaimer(true);
     } else {
-      onGameStart(
-        player1Name.trim() || 'Player 1', 
+        setSelectedModeInfo(gameModeDetails[gameMode]);
+        setInfoDialogOpen(true);
+    }
+  };
+
+  const proceedFromInfoDialog = () => {
+    setInfoDialogOpen(false);
+    const p2Name = gameType === 'ai' ? 'AI Commander' : player2Name.trim() || 'Player 2';
+    onGameStart(
+        player1Name.trim() || 'Player 1',
         p2Name,
         gameMode,
         null,
         gameType === 'ai'
-      );
-    }
-  };
+    );
+  }
 
   const handleAbilityProceed = (abilityConfig: AbilityConfig) => {
     setShowAbilityDisclaimer(false);
@@ -100,7 +102,7 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
+                <Accordion type="single" value={`item-${currentStep}`} onValueChange={() => {}} className="w-full">
                   <AccordionItem value="item-1">
                     <AccordionTrigger className="text-lg font-headline">Step 1: Game Type</AccordionTrigger>
                     <AccordionContent>
@@ -122,10 +124,13 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                             </Label>
                         </RadioGroup>
                       </div>
+                       <Button onClick={() => setCurrentStep(2)} className="w-full mt-6">
+                            Next
+                        </Button>
                     </AccordionContent>
                   </AccordionItem>
 
-                  <AccordionItem value="item-2">
+                  <AccordionItem value="item-2" disabled={currentStep < 2}>
                     <AccordionTrigger className="text-lg font-headline">Step 2: Player Names</AccordionTrigger>
                     <AccordionContent>
                       <div className="grid gap-4 pt-2">
@@ -149,10 +154,13 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                               />
                           </div>
                       </div>
+                       <Button onClick={() => setCurrentStep(3)} className="w-full mt-6">
+                            Next
+                        </Button>
                     </AccordionContent>
                   </AccordionItem>
 
-                  <AccordionItem value="item-3">
+                  <AccordionItem value="item-3" disabled={currentStep < 3}>
                     <AccordionTrigger className="text-lg font-headline">Step 3: Game Mode</AccordionTrigger>
                     <AccordionContent>
                       <div className="pt-2">
@@ -187,13 +195,12 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                               </Label>
                           </RadioGroup>
                       </div>
+                       <Button onClick={handleStart} className="w-full mt-6" size="lg">
+                            Start Game
+                        </Button>
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
-                
-                <Button onClick={handleStart} className="w-full mt-6" size="lg">
-                    Start Game
-                </Button>
             </CardContent>
         </Card>
 
@@ -205,7 +212,7 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                         {selectedModeInfo.description}
                     </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogAction onClick={() => setInfoDialogOpen(false)}>Acknowledge</AlertDialogAction>
+                <AlertDialogAction onClick={proceedFromInfoDialog}>Proceed to Battle</AlertDialogAction>
             </AlertDialogContent>
         </AlertDialog>
 
@@ -217,3 +224,5 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
     </>
   );
 };
+
+    
