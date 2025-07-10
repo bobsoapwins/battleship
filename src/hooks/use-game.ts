@@ -37,6 +37,7 @@ const getInitialState = (): GameState => ({
     playerToPlace: 1,
     shipIndex: 0,
     orientation: 'horizontal',
+    placementComplete: false,
   },
   isTransitioning: false,
   shotResult: null,
@@ -86,7 +87,7 @@ export const useGame = () => {
 
   const placeShip = useCallback((x: number, y: number) => {
     setGameState((prev) => {
-      if (prev.phase !== 'placement') return prev;
+      if (prev.phase !== 'placement' || prev.placementState.placementComplete) return prev;
 
       const { playerToPlace, shipIndex, orientation } = prev.placementState;
       const player = prev.players[playerToPlace - 1];
@@ -134,24 +135,43 @@ export const useGame = () => {
           message: `${player.name}, place your ${SHIP_TYPES[nextShipIndex].name}.`,
         };
       } else {
+        // Last ship is placed, mark as complete but don't change phase yet
+        return {
+          ...prev,
+          players: newPlayers,
+          placementState: {
+            ...prev.placementState,
+            shipIndex: nextShipIndex,
+            placementComplete: true,
+          },
+          message: `${newPlayer.name}'s fleet is ready.`,
+        };
+      }
+    });
+  }, []);
+
+  const endPlacement = useCallback(() => {
+    setGameState(prev => {
+        if (prev.phase !== 'placement' || !prev.placementState.placementComplete) return prev;
+        
+        const { playerToPlace } = prev.placementState;
+        
         if (playerToPlace === 1) {
           return {
             ...prev,
-            players: newPlayers,
             phase: 'intermission',
-            message: `${newPlayer.name}'s fleet is ready. Pass to ${newPlayers[1].name}.`,
+            message: `${prev.players[0].name}'s fleet is ready. Pass to ${prev.players[1].name}.`,
           };
         } else {
           return {
             ...prev,
-            players: newPlayers,
             phase: 'pre-battle',
             message: 'All fleets are placed. Ready for battle!',
           };
         }
-      }
     });
   }, []);
+
 
   const startNextPlacement = useCallback(() => {
     setGameState((prev) => {
@@ -163,6 +183,7 @@ export const useGame = () => {
                 playerToPlace: 2,
                 shipIndex: 0,
                 orientation: 'horizontal',
+                placementComplete: false,
             },
             message: `${prev.players[1].name}, place your fleet.`,
         }
@@ -316,5 +337,5 @@ export const useGame = () => {
     })
   }, []);
 
-  return { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin };
+  return { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin, endPlacement };
 };

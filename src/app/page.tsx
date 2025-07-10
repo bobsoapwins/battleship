@@ -24,7 +24,7 @@ const GameBoard = dynamic(() => import('@/components/game-board').then(mod => mo
 
 
 export default function Home() {
-  const { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin } = useGame();
+  const { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin, endPlacement } = useGame();
   const { phase, players, currentPlayerId, message, placementState, isTransitioning, shotResult, readyStates, winner } = gameState;
   const [isClient, setIsClient] = useState(false);
   const [currentScreen, setCurrentScreen] = useState<'booting' | 'intro' | 'game'>('booting');
@@ -44,6 +44,15 @@ export default function Home() {
       return () => clearTimeout(timer);
     }
   }, [currentScreen]);
+
+  useEffect(() => {
+    if (placementState.placementComplete) {
+      const timer = setTimeout(() => {
+        endPlacement();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [placementState.placementComplete, endPlacement]);
 
   useEffect(() => {
     if (phase === 'gameover' && winner && !insights && !isLoadingInsights) {
@@ -123,7 +132,7 @@ export default function Home() {
     const playerToPlace = players[placementState.playerToPlace - 1];
     const shipToPlace = SHIP_TYPES[placementState.shipIndex];
 
-    if (!shipToPlace) return null;
+    if (!shipToPlace && !placementState.placementComplete) return null;
 
     return (
       <div className="flex flex-col lg:flex-row gap-8 items-start">
@@ -134,6 +143,7 @@ export default function Home() {
             onToggleOrientation={toggleOrientation}
             shipsPlacedCount={placementState.shipIndex}
             totalShips={SHIP_TYPES.length}
+            placementComplete={placementState.placementComplete}
           />
         </div>
         <div className="w-full lg:w-2/3">
@@ -143,6 +153,7 @@ export default function Home() {
             ships={playerToPlace.ships}
             onCellClick={(x, y) => placeShip(x, y)}
             isPlayerBoard={true}
+            disabled={placementState.placementComplete}
           />
         </div>
       </div>

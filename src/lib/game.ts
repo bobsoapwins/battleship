@@ -45,17 +45,20 @@ export type ReadyStates = {
     player2: boolean;
 }
 
+export interface PlacementState {
+    playerToPlace: 1 | 2;
+    shipIndex: number;
+    orientation: Orientation;
+    placementComplete: boolean;
+}
+
 export interface GameState {
   phase: GamePhase;
   players: [Player, Player];
   currentPlayerId: 1 | 2;
   winner: Player | null;
   message: string;
-  placementState: {
-    playerToPlace: 1 | 2;
-    shipIndex: number;
-    orientation: Orientation;
-  };
+  placementState: PlacementState;
   isTransitioning: boolean;
   shotResult: { x: number; y: number } | null;
   readyStates: ReadyStates;
