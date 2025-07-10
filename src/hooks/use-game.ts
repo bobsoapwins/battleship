@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useCallback } from 'react';
@@ -285,6 +286,19 @@ export const useGame = () => {
         newOpponentShips = opponent.ships.map(ship => {
             const isHit = ship.positions.some(p => p.x === x && p.y === y);
             if (isHit) {
+                if (gameMode === 'nuclear') {
+                    // Instantly sink the ship
+                    resultMessage = `Opponent's ${ship.name} was obliterated!`;
+                    // Mark all positions as hit
+                    ship.positions.forEach(p => {
+                        if (newOpponentBoard[p.y][p.x] === 'ship') {
+                            newOpponentBoard[p.y][p.x] = 'hit';
+                        }
+                    });
+                    return { ...ship, hits: ship.positions, sunk: true };
+                }
+
+                // Classic and Salvo logic
                 const newHits = [...ship.hits, {x, y}];
                 const sunk = newHits.length === ship.size;
                 if(sunk) {

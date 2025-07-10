@@ -1,3 +1,4 @@
+
 export const GRID_SIZE = 10;
 
 export const SHIP_TYPES = [
@@ -11,7 +12,7 @@ export const SHIP_TYPES = [
 export type ShipType = (typeof SHIP_TYPES)[number];
 export type ShipName = ShipType['name'];
 export type Orientation = 'horizontal' | 'vertical';
-export type GameMode = 'classic' | 'salvo';
+export type GameMode = 'classic' | 'salvo' | 'nuclear';
 
 export interface Ship {
   name: ShipName;

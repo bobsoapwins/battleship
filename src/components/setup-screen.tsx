@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -71,6 +72,13 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                             <Label htmlFor="r2" className="font-normal">
                                 <span className="font-medium">Salvo</span>
                                 <p className="text-xs text-muted-foreground">Fire one shot for each of your remaining ships.</p>
+                            </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="nuclear" id="r3" />
+                            <Label htmlFor="r3" className="font-normal">
+                                <span className="font-medium">Nuclear</span>
+                                <p className="text-xs text-muted-foreground">One hit, one kill. Each successful hit sinks the ship.</p>
                             </Label>
                         </div>
                     </RadioGroup>
