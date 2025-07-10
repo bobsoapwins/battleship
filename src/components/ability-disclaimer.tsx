@@ -73,7 +73,7 @@ export function AbilityDisclaimer({ open, onProceed, onBack }: AbilityDisclaimer
                             onCheckedChange={() => handleToggle(key)}
                         />
                         <Label htmlFor={key} className="flex-1 cursor-pointer">
-                            <p className="font-medium">{abilityDetails[key].title}</p>
+                            <p className="font-medium text-foreground">{abilityDetails[key].title}</p>
                             <p className="text-sm text-muted-foreground font-normal">{abilityDetails[key].description}</p>
                         </Label>
                     </div>
