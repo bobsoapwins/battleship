@@ -33,7 +33,7 @@ const initialAbilities = (config?: AbilityConfig | null): AbilitiesState => ({
   sonar: { uses: config?.sonar ? 2 : 0, cooldown: 0, enabled: !!config?.sonar },
   tomahawk: { uses: config?.tomahawk ? 1 : 0, cooldown: 0, enabled: !!config?.tomahawk },
   mine: { uses: config?.mine ? 2 : 0, cooldown: 0, enabled: !!config?.mine },
-  submarineTorpedo: { uses: 1, cooldown: 0, enabled: false }, // Not configurable for now
+  submarineTorpedo: { uses: config?.submarineTorpedo ? 1 : 0, cooldown: 0, enabled: !!config?.submarineTorpedo },
 });
 
 

@@ -27,6 +27,7 @@ const initialConfig: AbilityConfig = {
   sonar: true,
   tomahawk: true,
   mine: true,
+  submarineTorpedo: true,
 };
 
 const abilityDetails: Record<AbilityKey, { title: string, description: string }> = {
@@ -41,6 +42,10 @@ const abilityDetails: Record<AbilityKey, { title: string, description: string }>
     mine: {
         title: "Defensive Mines",
         description: "Place mines that detonate when an enemy fires on them.",
+    },
+    submarineTorpedo: {
+        title: "Submarine Torpedo",
+        description: "Launch a torpedo from your Submarine, hitting an entire row or column. Requires the Submarine to be afloat.",
     }
 }
 

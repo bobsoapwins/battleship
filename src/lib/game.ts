@@ -16,8 +16,8 @@ export type ShipType = (typeof SHIP_TYPES)[number];
 export type ShipName = ShipType['name'];
 export type Orientation = 'horizontal' | 'vertical';
 export type GameMode = 'classic' | 'salvo' | 'nuclear' | 'ability';
-export type AbilityKey = 'sonar' | 'tomahawk' | 'mine';
-export type ActiveAbility = AbilityKey | 'submarineTorpedo' | null;
+export type AbilityKey = 'sonar' | 'tomahawk' | 'mine' | 'submarineTorpedo';
+export type ActiveAbility = AbilityKey | null;
 
 export type AbilityConfig = Record<AbilityKey, boolean>;
 
