@@ -2,9 +2,10 @@
 'use client';
 
 import type { FC } from 'react';
+import { useState } from 'react';
 import { Target, Waves, Ship as ShipIcon, Skull, Bomb } from 'lucide-react';
-import type { Board, Ship, Point } from '@/lib/game';
-import { GRID_SIZE } from '@/lib/game';
+import type { Board, Ship, Point, ShipType, Orientation } from '@/lib/game';
+import { GRID_SIZE, canPlaceShip } from '@/lib/game';
 import { cn } from '@/lib/utils';
 
 interface GameBoardProps {
@@ -19,6 +20,10 @@ interface GameBoardProps {
   scannedArea?: Point[] | null;
   isUsingAbility?: boolean;
   isPlacingMine?: boolean;
+  placementPreview?: {
+    shipToPlace: ShipType;
+    orientation: Orientation;
+  } | null;
 }
 
 export const GameBoard: FC<GameBoardProps> = ({ 
@@ -33,8 +38,10 @@ export const GameBoard: FC<GameBoardProps> = ({
   scannedArea = null,
   isUsingAbility = false,
   isPlacingMine = false,
+  placementPreview = null
 }) => {
-  
+  const [hoverPosition, setHoverPosition] = useState<Point | null>(null);
+
   const getShipAt = (x: number, y: number) => {
     return ships.find(ship => ship.positions.some(pos => pos.x === x && pos.y === y));
   };
@@ -46,6 +53,34 @@ export const GameBoard: FC<GameBoardProps> = ({
     return scannedArea.some(pos => pos.x === x && pos.y === y);
   };
   
+  const getPreviewCells = (): { points: Point[], isValid: boolean } | null => {
+    if (!placementPreview || !hoverPosition || disabled) return null;
+
+    const { shipToPlace, orientation } = placementPreview;
+    if (!shipToPlace) return null;
+
+    const { x, y } = hoverPosition;
+    const isValid = canPlaceShip(boardData, shipToPlace.size, x, y, orientation);
+    const points: Point[] = [];
+    
+    for (let i = 0; i < shipToPlace.size; i++) {
+        if (orientation === 'horizontal') {
+            if (x + i < GRID_SIZE) points.push({ x: x + i, y });
+        } else {
+            if (y + i < GRID_SIZE) points.push({ x, y: y + i });
+        }
+    }
+    return { points, isValid };
+  };
+
+  const previewInfo = getPreviewCells();
+
+  const isPreviewCell = (x: number, y: number) => {
+    if (!previewInfo) return false;
+    return previewInfo.points.some(p => p.x === x && p.y === y);
+  };
+
+
   const renderCellContent = (x: number, y: number) => {
     const cell = boardData[y][x];
     const ship = getShipAt(x, y);
@@ -83,7 +118,10 @@ export const GameBoard: FC<GameBoardProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-10 grid-rows-10 gap-1 bg-primary/20 p-2 rounded-lg shadow-inner aspect-square w-full max-w-sm mx-auto md:max-w-md lg:max-w-lg">
+    <div 
+      className="grid grid-cols-10 grid-rows-10 gap-1 bg-primary/20 p-2 rounded-lg shadow-inner aspect-square w-full max-w-sm mx-auto md:max-w-md lg:max-w-lg"
+      onMouseLeave={() => setHoverPosition(null)}
+    >
       {boardData.map((row, y) =>
         row.map((cell, x) => {
           const ship = getShipAt(x, y);
@@ -91,15 +129,17 @@ export const GameBoard: FC<GameBoardProps> = ({
           const wasLastShot = isLastShot(x, y);
           const showShip = isPlayerBoard || (revealShips && cell === 'ship');
           const cellIsScanned = !isPlayerBoard && isScanned(x, y);
+          const isPreview = isPreviewCell(x, y);
           
           return (
             <div
               key={`${x}-${y}`}
               onClick={() => !disabled && onCellClick(x, y)}
+              onMouseEnter={() => setHoverPosition({x, y})}
               className={cn(
                 'w-full h-full rounded-sm flex items-center justify-center aspect-square transition-colors duration-200 relative',
                 disabled ? 'cursor-not-allowed' : 'cursor-pointer',
-                !disabled && !isUsingAbility && !isPlacingMine && 'hover:bg-accent/50',
+                !disabled && !isUsingAbility && !isPlacingMine && !placementPreview && 'hover:bg-accent/50',
                 isUsingAbility && !disabled && 'cursor-crosshair hover:bg-red-500/50',
                 isPlacingMine && !disabled && 'cursor-crosshair hover:bg-yellow-500/50',
                 showShip ? 'bg-primary/80' : 'bg-primary/40',
@@ -107,7 +147,9 @@ export const GameBoard: FC<GameBoardProps> = ({
                 isShipSunk && 'bg-red-800/80',
                 cell === 'miss' && 'bg-blue-300/50',
                 cellIsScanned && !revealShips && 'bg-accent/70',
-                wasLastShot && 'animate-shot z-10'
+                wasLastShot && 'animate-shot z-10',
+                isPreview && previewInfo?.isValid && 'bg-green-500/50',
+                isPreview && !previewInfo?.isValid && 'bg-red-500/50',
               )}
             >
               {renderCellContent(x, y)}

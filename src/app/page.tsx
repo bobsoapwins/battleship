@@ -173,6 +173,10 @@ export default function Home() {
             isPlayerBoard={true}
             disabled={placementState.placementComplete && activeAbility !== 'mine'}
             isPlacingMine={activeAbility === 'mine'}
+            placementPreview={{
+              shipToPlace: shipToPlace,
+              orientation: placementState.orientation,
+            }}
           />
         </div>
       </div>
