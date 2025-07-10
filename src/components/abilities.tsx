@@ -3,7 +3,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ScanSearch, Rocket, Bomb } from 'lucide-react';
+import { ScanSearch, Rocket, Bomb, Target } from 'lucide-react';
 import type { Player, ActiveAbility } from '@/lib/game';
 import { cn } from '@/lib/utils';
 
@@ -22,7 +22,7 @@ export const Abilities = ({ player, onToggleAbility, activeAbility, isPlacement 
             <Card>
                 <CardHeader>
                     <CardTitle className="font-headline text-xl">Place Mines</CardTitle>
-                    <CardDescription>Place defensive mines on your grid.</CardDescription>
+                    <CardDescription>Place defensive mines on your grid. When your enemy fires at that location, it will explode on their board. If they have any ships in that radius, hits will be administered.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Button 
@@ -62,13 +62,13 @@ export const Abilities = ({ player, onToggleAbility, activeAbility, isPlacement 
                         <Rocket className="mr-2" />
                         Tomahawk ({abilities.tomahawk.uses})
                     </Button>
-                     <Button 
-                        onClick={() => onToggleAbility('mine')} 
-                        variant="outline"
-                        disabled={true}
+                    <Button
+                        onClick={() => onToggleAbility('submarineTorpedo')}
+                        variant={activeAbility === 'submarineTorpedo' ? 'default' : 'outline'}
+                        disabled={abilities.submarineTorpedo.uses <= 0 || !!player.ships.find(s => s.name === 'Submarine')?.sunk}
                     >
-                        <Bomb className="mr-2" />
-                        Mines Placed
+                        <Target className="mr-2" />
+                        Submarine Torpedo ({abilities.submarineTorpedo.uses})
                     </Button>
                 </div>
             </CardContent>
