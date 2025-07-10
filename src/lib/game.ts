@@ -91,6 +91,7 @@ export interface GameState {
   readyStates: ReadyStates;
   shotsRemaining: number;
   activeAbility: ActiveAbility;
+  isAIGame: boolean;
 }
 
 export const createEmptyBoard = (): Board =>

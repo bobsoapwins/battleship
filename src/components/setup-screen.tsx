@@ -19,8 +19,9 @@ import {
 } from '@/components/ui/alert-dialog';
 import { AbilityDisclaimer } from './ability-disclaimer';
 
+type GameType = 'human' | 'ai';
 interface SetupScreenProps {
-  onGameStart: (player1Name: string, player2Name: string, gameMode: GameMode, abilityConfig: AbilityConfig | null) => void;
+  onGameStart: (player1Name: string, player2Name: string, gameMode: GameMode, abilityConfig: AbilityConfig | null, isAIGame: boolean) => void;
 }
 
 const gameModeDetails: Record<GameMode, { title: string; description: string }> = {
@@ -46,6 +47,7 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
   const [player1Name, setPlayer1Name] = useState('');
   const [player2Name, setPlayer2Name] = useState('');
   const [gameMode, setGameMode] = useState<GameMode>('classic');
+  const [gameType, setGameType] = useState<GameType>('human');
   const [infoDialogOpen, setInfoDialogOpen] = useState(false);
   const [selectedModeInfo, setSelectedModeInfo] = useState(gameModeDetails.classic);
   const [showAbilityDisclaimer, setShowAbilityDisclaimer] = useState(false);
@@ -61,25 +63,29 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
   };
   
   const handleStart = () => {
+    const p2Name = gameType === 'ai' ? 'AI Commander' : player2Name.trim() || 'Player 2';
     if (gameMode === 'ability') {
       setShowAbilityDisclaimer(true);
     } else {
       onGameStart(
         player1Name.trim() || 'Player 1', 
-        player2Name.trim() || 'Player 2',
+        p2Name,
         gameMode,
-        null
+        null,
+        gameType === 'ai'
       );
     }
   };
 
   const handleAbilityProceed = (abilityConfig: AbilityConfig) => {
     setShowAbilityDisclaimer(false);
+    const p2Name = gameType === 'ai' ? 'AI Commander' : player2Name.trim() || 'Player 2';
     onGameStart(
       player1Name.trim() || 'Player 1',
-      player2Name.trim() || 'Player 2',
+      p2Name,
       'ability',
-      abilityConfig
+      abilityConfig,
+      gameType === 'ai'
     );
   };
 
@@ -89,11 +95,25 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
             <CardHeader>
                 <CardTitle className="font-headline text-3xl text-center">Battleship</CardTitle>
                 <CardDescription className="text-center">
-                    Welcome! Set your player names and game mode to begin.
+                    Welcome! Set up your game to begin.
                 </CardDescription>
             </CardHeader>
             <CardContent>
                 <div className="grid gap-6">
+                    <div className="space-y-4">
+                        <Label>Game Type</Label>
+                        <RadioGroup value={gameType} onValueChange={(v) => setGameType(v as GameType)}>
+                           <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="human" id="g1" />
+                                <Label htmlFor="g1" className="font-normal">Player vs. Player</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="ai" id="g2" />
+                                <Label htmlFor="g2" className="font-normal">Player vs. AI</Label>
+                            </div>
+                        </RadioGroup>
+                    </div>
+
                     <div className="grid gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="player1-name">Player 1 Name</Label>
@@ -101,16 +121,17 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                             id="player1-name"
                             value={player1Name}
                             onChange={(e) => setPlayer1Name(e.target.value)}
-                            placeholder="Enter name for Player 1"
+                            placeholder="Enter your name"
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="player2-name">Player 2 Name</Label>
+                            <Label htmlFor="player2-name">{gameType === 'ai' ? 'AI Name' : 'Player 2 Name'}</Label>
                             <Input
                             id="player2-name"
-                            value={player2Name}
+                            value={gameType === 'ai' ? 'AI Commander' : player2Name}
                             onChange={(e) => setPlayer2Name(e.target.value)}
                             placeholder="Enter name for Player 2"
+                            disabled={gameType === 'ai'}
                             />
                         </div>
                     </div>

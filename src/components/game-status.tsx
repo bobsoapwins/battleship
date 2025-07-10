@@ -16,9 +16,10 @@ interface GameStatusProps {
   onConfirmShot?: () => void;
   players?: [Player, Player];
   winner: Player | null;
+  isAIGame?: boolean;
 }
 
-export const GameStatus: FC<GameStatusProps> = ({ phase, message, onReset, onStartNextPlacement, isTransitioning, onConfirmShot, players, winner }) => {
+export const GameStatus: FC<GameStatusProps> = ({ phase, message, onReset, onStartNextPlacement, isTransitioning, onConfirmShot, players, winner, isAIGame }) => {
   const renderTitle = () => {
     if (phase === 'gameover' && winner) return `${winner.name} Wins!`;
     if (phase === 'gameover') return 'Game Over';
@@ -33,6 +34,15 @@ export const GameStatus: FC<GameStatusProps> = ({ phase, message, onReset, onSta
     return 'Battleship';
   }
 
+  const getTransitionMessage = () => {
+    if (isAIGame) {
+      const humanPlayerName = players ? players[0].name : 'your';
+      if (winner && winner.id === 2) return `The AI has processed its turn. It's ${humanPlayerName} turn.`
+      return "The AI has processed its turn. Press Continue."
+    }
+    return 'Pass the device to your opponent and press Continue.';
+  }
+
   return (
     <Card className="text-center w-full max-w-2xl mx-auto">
       <CardHeader>
@@ -41,7 +51,7 @@ export const GameStatus: FC<GameStatusProps> = ({ phase, message, onReset, onSta
         </CardTitle>
         <CardDescription>
           {isTransitioning && phase === 'battle' 
-            ? 'Pass the device to your opponent and press Continue.' 
+            ? getTransitionMessage()
             : message}
         </CardDescription>
       </CardHeader>

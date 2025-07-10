@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { Player, ReadyStates } from '@/lib/game';
@@ -11,10 +10,11 @@ interface ReadyUpScreenProps {
   readyStates: ReadyStates;
   onToggleReady: (playerId: 1 | 2) => void;
   onStartBattle: () => void;
+  isAIGame?: boolean;
 }
 
-export const ReadyUpScreen = ({ players, readyStates, onToggleReady, onStartBattle }: ReadyUpScreenProps) => {
-  const allReady = readyStates.player1 && readyStates.player2;
+export const ReadyUpScreen = ({ players, readyStates, onToggleReady, onStartBattle, isAIGame }: ReadyUpScreenProps) => {
+  const allReady = isAIGame ? readyStates.player1 : (readyStates.player1 && readyStates.player2);
 
   const PlayerStatus = ({ player, isReady }: { player: Player, isReady: boolean }) => (
     <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
@@ -37,16 +37,16 @@ export const ReadyUpScreen = ({ players, readyStates, onToggleReady, onStartBatt
       <CardHeader className="text-center">
         <CardTitle className="font-headline text-3xl">The Fleets Are Set</CardTitle>
         <CardDescription>
-          Both players must ready up to begin the battle.
+          {isAIGame ? 'Ready up to begin the battle against the AI.' : 'Both players must ready up to begin the battle.'}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <PlayerStatus player={players[0]} isReady={readyStates.player1} />
-        <PlayerStatus player={players[1]} isReady={readyStates.player2} />
+        {!isAIGame && <PlayerStatus player={players[1]} isReady={readyStates.player2} />}
 
         {allReady && (
           <div className="pt-4 flex flex-col items-center gap-2">
-            <p className="text-sm text-muted-foreground">{players[0].name} may start the battle.</p>
+            <p className="text-sm text-muted-foreground">{isAIGame ? "Begin the battle." : `${players[0].name} may start the battle.`}</p>
             <Button onClick={onStartBattle} size="lg">
               Start Battle
             </Button>

@@ -15,6 +15,7 @@ import { ReadyUpScreen } from '@/components/ready-up-screen';
 import { Terminal } from '@/components/terminal';
 import type { GameAnalysisInput, GameAnalysisOutput } from '@/ai/flows/game-analysis-flow';
 import { getGameAnalysis } from '@/ai/flows/game-analysis-flow';
+import { getAIOpponentMove } from '@/ai/flows/ai-opponent-flow';
 import { AIInsights } from '@/components/ai-insights';
 import { IntroScreen } from '@/components/intro-screen';
 import type { GameMode, AbilityConfig } from '@/lib/game';
@@ -29,14 +30,19 @@ const GameBoard = dynamic(() => import('@/components/game-board').then(mod => mo
 
 export default function Home() {
   const { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin, endPlacement, toggleAbility, resetPlayerBoard } = useGame();
-  const { phase, players, currentPlayerId, message, placementState, isTransitioning, shotResult, readyStates, winner, gameMode, activeAbility } = gameState;
+  const { phase, players, currentPlayerId, message, placementState, isTransitioning, shotResult, readyStates, winner, gameMode, activeAbility, isAIGame } = gameState;
   const [isClient, setIsClient] = useState(false);
-  const [currentScreen, setCurrentScreen] = useState<'booting' | 'intro' | 'game'>('booting');
+  const [currentScreen, setCurrentScreen] = useState<'intro' | 'game'>('intro');
   const [revealOpponent, setRevealOpponent] = useState(false);
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const [insights, setInsights] = useState<GameAnalysisOutput | null>(null);
   const [isLoadingInsights, setIsLoadingInsights] = useState(false);
   const [gameVisible, setGameVisible] = useState(false);
+  const [isAIThinking, setIsAIThinking] = useState(false);
+
+  const currentPlayer = players[currentPlayerId - 1];
+  const opponentPlayer = players[currentPlayerId === 1 ? 1 : 0];
+  const isAITurn = isAIGame && currentPlayer.id === 2;
 
   useEffect(() => {
     setIsClient(true);
@@ -84,11 +90,33 @@ export default function Home() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, winner]);
+
+   useEffect(() => {
+    if (isAITurn && !isTransitioning && phase === 'battle' && !isAIThinking) {
+      setIsAIThinking(true);
+      const timer = setTimeout(async () => {
+        const opponentBoard = players[0].board; // Human player's board
+        const lastShot = Array.isArray(shotResult) ? null : shotResult;
+        const lastHit = lastShot && opponentBoard[lastShot.y][lastShot.x] === 'hit' ? lastShot : null;
+
+        const aiMove = await getAIOpponentMove({ 
+            boardState: opponentBoard,
+            lastHit,
+        });
+        
+        handleFire(aiMove.x, aiMove.y);
+        setIsAIThinking(false);
+      }, 1500); // AI "thinking" time
+
+      return () => clearTimeout(timer);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAITurn, isTransitioning, phase]);
   
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.shiftKey && e.key === 'Tab') {
-        if (currentScreen === 'booting' || currentScreen === 'intro') {
+        if (currentScreen === 'intro') {
             e.preventDefault();
             setCurrentScreen('game');
         }
@@ -129,11 +157,8 @@ export default function Home() {
     setIsTerminalOpen(false);
   };
 
-  const currentPlayer = players[currentPlayerId - 1];
-  const opponentPlayer = players[currentPlayerId === 1 ? 1 : 0];
-
-  const handleGameStart = (player1Name: string, player2Name: string, mode: GameMode, abilityConfig: AbilityConfig | null) => {
-    setPlayerNames(player1Name, player2Name, mode, abilityConfig);
+  const handleGameStart = (player1Name: string, player2Name: string, gameMode: GameMode, abilityConfig: AbilityConfig | null, isAIGame: boolean) => {
+    setPlayerNames(player1Name, player2Name, gameMode, abilityConfig, isAIGame);
   };
 
   const renderPlacementPhase = () => {
@@ -185,18 +210,22 @@ export default function Home() {
   };
 
   const renderBattlePhase = () => {
+    const myBoardPlayer = isAIGame ? players[0] : currentPlayer;
+    const opponentBoardPlayer = isAIGame ? players[1] : opponentPlayer;
+
     return (
       <div className="flex flex-col gap-8">
           <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
             {/* My Board */}
             <div className={cn(
-              "w-full lg:w-1/2 p-4 rounded-xl transition-opacity duration-500",
-              isTransitioning ? "opacity-0" : "opacity-50"
+              "w-full lg:w-1/2 p-4 rounded-xl transition-all duration-500",
+               isAIGame && currentPlayerId === 1 && !isTransitioning ? 'opacity-100' : 'opacity-50',
+               !isAIGame && isTransitioning && 'opacity-0'
             )}>
-              <h2 className="text-2xl font-headline mb-4 text-center">{`${currentPlayer.name}'s Fleet (You)`}</h2>
+              <h2 className="text-2xl font-headline mb-4 text-center">{`${myBoardPlayer.name}'s Fleet (You)`}</h2>
               <GameBoard
-                boardData={currentPlayer.board}
-                ships={currentPlayer.ships}
+                boardData={myBoardPlayer.board}
+                ships={myBoardPlayer.ships}
                 onCellClick={() => {}}
                 isPlayerBoard={true}
                 disabled={true}
@@ -205,14 +234,16 @@ export default function Home() {
             </div>
 
             {/* Opponent's Board */}
-            <div className={cn("w-full lg:w-1/2 p-4 rounded-xl transition-all duration-500", phase === 'battle' && !isTransitioning ? 'bg-primary/10 ring-2 ring-accent' : 'opacity-80')}>
-              <h2 className="text-2xl font-headline mb-4 text-center">{`${opponentPlayer.name}'s Fleet (Opponent)`}</h2>
+            <div className={cn("w-full lg:w-1/2 p-4 rounded-xl transition-all duration-500", 
+              phase === 'battle' && !isTransitioning && !isAITurn ? 'bg-primary/10 ring-2 ring-accent' : 'opacity-80'
+            )}>
+              <h2 className="text-2xl font-headline mb-4 text-center">{`${opponentBoardPlayer.name}'s Fleet (Opponent)`}</h2>
               <GameBoard
-                boardData={opponentPlayer.board}
-                ships={opponentPlayer.ships}
+                boardData={opponentBoardPlayer.board}
+                ships={opponentBoardPlayer.ships}
                 onCellClick={handleFire}
                 isPlayerBoard={false}
-                disabled={phase !== 'battle' || isTransitioning}
+                disabled={phase !== 'battle' || isTransitioning || isAITurn}
                 lastShot={Array.isArray(shotResult) ? null : shotResult}
                 lastMultiShot={Array.isArray(shotResult) ? shotResult : null}
                 revealShips={revealOpponent}
@@ -221,7 +252,7 @@ export default function Home() {
               />
             </div>
           </div>
-          {gameMode === 'ability' && phase === 'battle' && !isTransitioning && (
+          {gameMode === 'ability' && phase === 'battle' && !isTransitioning && !isAITurn && (
             <div className="w-full max-w-2xl mx-auto">
               <Abilities player={currentPlayer} onToggleAbility={toggleAbility} activeAbility={activeAbility} />
             </div>
@@ -236,6 +267,7 @@ export default function Home() {
     }
     switch (phase) {
       case 'placement':
+        if (isAIGame && placementState.playerToPlace === 2) return null; // Skip AI placement view
         return renderPlacementPhase();
       case 'battle':
         return renderBattlePhase();
@@ -256,6 +288,7 @@ export default function Home() {
             readyStates={readyStates}
             onToggleReady={togglePlayerReady}
             onStartBattle={startBattle}
+            isAIGame={isAIGame}
           />
         );
       default:
@@ -263,10 +296,6 @@ export default function Home() {
     }
   };
   
-  if (currentScreen === 'booting') {
-    return <IntroScreen onComplete={() => setCurrentScreen('game')} />;
-  }
-
   if (currentScreen === 'intro') {
     return <IntroScreen onComplete={() => setCurrentScreen('game')} />;
   }
@@ -290,13 +319,14 @@ export default function Home() {
       <div className="w-full mb-8">
         <GameStatus
           phase={phase}
-          message={message}
+          message={isAIThinking ? 'AI is thinking...' : message}
           onReset={resetGame}
           onStartNextPlacement={startNextPlacement}
           isTransitioning={isTransitioning}
           onConfirmShot={confirmShotAndSwitchTurn}
           players={players}
           winner={winner}
+          isAIGame={isAIGame}
         />
       </div>
       <div className="w-full">
