@@ -296,7 +296,6 @@ export const useGame = () => {
             shotResult: null,
             currentPlayerId: nextPlayerId,
             shotsRemaining,
-            scannedArea: null,
             activeAbility: null,
             message: `${nextPlayer.name}, your turn. ${currentGameState.gameMode === 'salvo' ? `(${shotsRemaining} shots remaining)`: ''}`
         }
@@ -403,7 +402,7 @@ export const useGame = () => {
           }
           const newCurrentPlayer = {...currentPlayer, abilities: {...currentPlayer.abilities, sonar: { ...currentPlayer.abilities.sonar, uses: currentPlayer.abilities.sonar.uses - 1}}};
           newPlayers[currentPlayerId-1] = newCurrentPlayer;
-          return { ...prev, players: newPlayers, scannedArea, activeAbility: null, isTransitioning: true, message: 'Scan complete. Area revealed.' };
+          return { ...prev, players: newPlayers, scannedArea: [...(prev.scannedArea || []), ...scannedArea], activeAbility: null, isTransitioning: true, message: 'Scan complete. Area revealed.' };
         }
 
         if(activeAbility === 'tomahawk') {
@@ -591,3 +590,5 @@ export const useGame = () => {
 
   return { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin, endPlacement, toggleAbility };
 };
+
+    
