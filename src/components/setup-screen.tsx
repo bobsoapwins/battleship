@@ -164,7 +164,7 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                         {selectedModeInfo.description}
                     </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogAction onClick={() => setInfoDialogOpen(false)}>Got it!</AlertDialogAction>
+                <AlertDialogAction onClick={() => setInfoDialogOpen(false)}>Acknowledge</AlertDialogAction>
             </AlertDialogContent>
         </AlertDialog>
 
