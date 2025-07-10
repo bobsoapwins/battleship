@@ -59,7 +59,6 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
   };
   
   const handleStart = () => {
-    const p2Name = gameType === 'ai' ? 'AI Commander' : player2Name.trim() || 'Player 2';
     if (gameMode === 'ability') {
       setShowAbilityDisclaimer(true);
     } else {
@@ -97,6 +96,12 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
       setCurrentStep(currentStep + 1);
     }
   };
+
+  const handleBack = () => {
+      if (currentStep > 1) {
+          setCurrentStep(currentStep - 1);
+      }
+  }
 
 
   return (
@@ -199,13 +204,17 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
-                <div className="w-full mt-6">
+                <div className="w-full flex justify-between mt-6">
+                    <Button onClick={handleBack} variant="outline" disabled={currentStep === 1}>
+                        Back
+                    </Button>
+
                     {currentStep < 3 ? (
-                        <Button onClick={handleNext} className="w-full" size="lg">
+                        <Button onClick={handleNext}>
                             Next
                         </Button>
                     ) : (
-                        <Button onClick={handleStart} className="w-full" size="lg">
+                        <Button onClick={handleStart}>
                             Start Game
                         </Button>
                     )}
@@ -233,5 +242,3 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
     </>
   );
 };
-
-    
