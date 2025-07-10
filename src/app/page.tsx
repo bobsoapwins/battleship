@@ -28,7 +28,7 @@ const GameBoard = dynamic(() => import('@/components/game-board').then(mod => mo
 
 
 export default function Home() {
-  const { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin, endPlacement, toggleAbility } = useGame();
+  const { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin, endPlacement, toggleAbility, resetPlayerBoard } = useGame();
   const { phase, players, currentPlayerId, message, placementState, isTransitioning, shotResult, readyStates, winner, gameMode, activeAbility } = gameState;
   const [isClient, setIsClient] = useState(false);
   const [currentScreen, setCurrentScreen] = useState<'booting' | 'intro' | 'game'>('booting');
@@ -152,6 +152,7 @@ export default function Home() {
             shipsPlacedCount={placementState.shipIndex}
             totalShips={SHIP_TYPES.length}
             placementComplete={placementState.placementComplete}
+            onResetBoard={() => resetPlayerBoard(playerToPlace.id)}
           />
           {gameMode === 'ability' && (
             <div className="mt-4">
@@ -263,7 +264,7 @@ export default function Home() {
   };
   
   if (currentScreen === 'booting') {
-    return <BootupScreen onComplete={() => setCurrentScreen('intro')} />;
+    return <IntroScreen onComplete={() => setCurrentScreen('game')} />;
   }
 
   if (currentScreen === 'intro') {

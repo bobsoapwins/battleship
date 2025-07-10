@@ -112,6 +112,36 @@ export const useGame = () => {
     }));
   }, []);
 
+  const resetPlayerBoard = useCallback((playerId: 1 | 2) => {
+    setGameState(prev => {
+        if (prev.phase !== 'placement') return prev;
+
+        const playerIndex = prev.players.findIndex(p => p.id === playerId);
+        if (playerIndex === -1) return prev;
+
+        const newPlayers = [...prev.players] as [Player, Player];
+        const playerToReset = newPlayers[playerIndex];
+
+        newPlayers[playerIndex] = {
+            ...playerToReset,
+            board: createEmptyBoard(),
+            ships: [],
+            mines: [], // Also reset mines
+        };
+
+        return {
+            ...prev,
+            players: newPlayers,
+            placementState: {
+                ...prev.placementState,
+                shipIndex: 0,
+                placementComplete: false,
+            },
+            message: `${playerToReset.name}, your board has been reset. Place your fleet.`
+        }
+    });
+  }, []);
+
   const placeShip = useCallback((x: number, y: number) => {
     setGameState((prev) => {
       if (prev.phase !== 'placement' || prev.placementState.placementComplete) return prev;
@@ -605,7 +635,7 @@ export const useGame = () => {
         message: resultMessage,
       };
     });
-  }, []);
+  }, [setGameState]);
 
   const forceWin = useCallback((playerId: 1 | 2) => {
     setGameState(prev => {
@@ -632,5 +662,5 @@ export const useGame = () => {
     })
   }, []);
 
-  return { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin, endPlacement, toggleAbility };
+  return { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin, endPlacement, toggleAbility, resetPlayerBoard };
 };

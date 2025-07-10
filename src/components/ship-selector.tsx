@@ -1,7 +1,7 @@
 'use client';
 
 import type { FC } from 'react';
-import { RotateCw } from 'lucide-react';
+import { RotateCw, RefreshCcw } from 'lucide-react';
 import type { ShipType, Orientation } from '@/lib/game';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +11,7 @@ interface ShipSelectorProps {
   shipToPlace: ShipType;
   orientation: Orientation;
   onToggleOrientation: () => void;
+  onResetBoard: () => void;
   shipsPlacedCount: number;
   totalShips: number;
   placementComplete: boolean;
@@ -20,6 +21,7 @@ export const ShipSelector: FC<ShipSelectorProps> = ({
   shipToPlace,
   orientation,
   onToggleOrientation,
+  onResetBoard,
   shipsPlacedCount,
   totalShips,
   placementComplete,
@@ -63,10 +65,16 @@ export const ShipSelector: FC<ShipSelectorProps> = ({
           )}
         </div>
 
-        <Button onClick={onToggleOrientation} className="w-full" variant="outline" disabled={placementComplete}>
-          <RotateCw className="mr-2 h-4 w-4" />
-          Toggle Orientation ({orientation})
-        </Button>
+        <div className="grid grid-cols-2 gap-2">
+          <Button onClick={onToggleOrientation} variant="outline" disabled={placementComplete}>
+            <RotateCw className="mr-2 h-4 w-4" />
+            Orientation
+          </Button>
+          <Button onClick={onResetBoard} variant="destructive" disabled={placementComplete}>
+            <RefreshCcw className="mr-2 h-4 w-4" />
+            Reset Board
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
