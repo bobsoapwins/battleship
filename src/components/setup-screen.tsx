@@ -17,6 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { AbilityDisclaimer } from './ability-disclaimer';
 
 type GameType = 'human' | 'ai';
@@ -91,89 +92,108 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
 
   return (
     <>
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-lg">
             <CardHeader>
-                <CardTitle className="font-headline text-3xl text-center">Battleship</CardTitle>
+                <CardTitle className="font-headline text-3xl text-center">Game Setup</CardTitle>
                 <CardDescription className="text-center">
-                    Welcome! Set up your game to begin.
+                    Configure your game and prepare for battle.
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <div className="grid gap-6">
-                    <div className="space-y-4">
-                        <Label>Game Type</Label>
-                        <RadioGroup value={gameType} onValueChange={(v) => setGameType(v as GameType)}>
-                           <div className="flex items-center space-x-2">
+                <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
+                  <AccordionItem value="item-1">
+                    <AccordionTrigger className="text-lg font-headline">Step 1: Game Type</AccordionTrigger>
+                    <AccordionContent>
+                      <div className="pt-2">
+                        <RadioGroup value={gameType} onValueChange={(v) => setGameType(v as GameType)} className="gap-4">
+                           <Label className="flex items-center space-x-3 p-4 border rounded-md has-[input:checked]:bg-secondary cursor-pointer">
                                 <RadioGroupItem value="human" id="g1" />
-                                <Label htmlFor="g1" className="font-normal">Player vs. Player</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
+                                <div>
+                                  <p className="font-medium">Player vs. Player</p>
+                                  <p className="text-sm text-muted-foreground">Two human players battle it out.</p>
+                                </div>
+                            </Label>
+                            <Label className="flex items-center space-x-3 p-4 border rounded-md has-[input:checked]:bg-secondary cursor-pointer">
                                 <RadioGroupItem value="ai" id="g2" />
-                                <Label htmlFor="g2" className="font-normal">Player vs. AI</Label>
-                            </div>
+                                <div>
+                                  <p className="font-medium">Player vs. AI</p>
+                                  <p className="text-sm text-muted-foreground">Test your skills against an AI Commander.</p>
+                                </div>
+                            </Label>
                         </RadioGroup>
-                    </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
 
-                    <div className="grid gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="player1-name">Player 1 Name</Label>
-                            <Input
-                            id="player1-name"
-                            value={player1Name}
-                            onChange={(e) => setPlayer1Name(e.target.value)}
-                            placeholder="Enter your name"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="player2-name">{gameType === 'ai' ? 'AI Name' : 'Player 2 Name'}</Label>
-                            <Input
-                            id="player2-name"
-                            value={gameType === 'ai' ? 'AI Commander' : player2Name}
-                            onChange={(e) => setPlayer2Name(e.target.value)}
-                            placeholder="Enter name for Player 2"
-                            disabled={gameType === 'ai'}
-                            />
-                        </div>
-                    </div>
+                  <AccordionItem value="item-2">
+                    <AccordionTrigger className="text-lg font-headline">Step 2: Player Names</AccordionTrigger>
+                    <AccordionContent>
+                      <div className="grid gap-4 pt-2">
+                          <div className="space-y-2">
+                              <Label htmlFor="player1-name">Player 1 Name</Label>
+                              <Input
+                              id="player1-name"
+                              value={player1Name}
+                              onChange={(e) => setPlayer1Name(e.target.value)}
+                              placeholder="Enter your name"
+                              />
+                          </div>
+                          <div className="space-y-2">
+                              <Label htmlFor="player2-name">{gameType === 'ai' ? 'AI Name' : 'Player 2 Name'}</Label>
+                              <Input
+                              id="player2-name"
+                              value={gameType === 'ai' ? 'AI Commander' : player2Name}
+                              onChange={(e) => setPlayer2Name(e.target.value)}
+                              placeholder="Enter name for Player 2"
+                              disabled={gameType === 'ai'}
+                              />
+                          </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
 
-                    <div className="space-y-4">
-                        <Label>Game Mode</Label>
-                        <RadioGroup value={gameMode} onValueChange={handleGameModeChange}>
-                            <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="classic" id="r1" />
-                                <Label htmlFor="r1" className="font-normal">
-                                    <span className="font-medium">Classic</span>
-                                    <p className="text-xs text-muted-foreground">The original naval combat game. One shot per turn.</p>
-                                </Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="salvo" id="r2" />
-                                <Label htmlFor="r2" className="font-normal">
-                                    <span className="font-medium">Salvo</span>
-                                    <p className="text-xs text-muted-foreground">Fire one shot for each of your remaining ships.</p>
-                                </Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="nuclear" id="r3" />
-                                <Label htmlFor="r3" className="font-normal">
-                                    <span className="font-medium">Nuclear</span>
-                                    <p className="text-xs text-muted-foreground">One hit, one kill. Each successful hit sinks the ship.</p>
-                                </Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="ability" id="r4" />
-                                <Label htmlFor="r4" className="font-normal">
-                                    <span className="font-medium">Ability</span>
-                                    <p className="text-xs text-muted-foreground">Use special abilities to destroy your opponent</p>
-                                </Label>
-                            </div>
-                        </RadioGroup>
-                    </div>
-
-                    <Button onClick={handleStart} className="w-full mt-2">
-                        Start Game
-                    </Button>
-                </div>
+                  <AccordionItem value="item-3">
+                    <AccordionTrigger className="text-lg font-headline">Step 3: Game Mode</AccordionTrigger>
+                    <AccordionContent>
+                      <div className="pt-2">
+                          <RadioGroup value={gameMode} onValueChange={handleGameModeChange} className="gap-2">
+                              <Label className="flex items-center space-x-3 p-3 border rounded-md has-[input:checked]:bg-secondary cursor-pointer">
+                                  <RadioGroupItem value="classic" id="r1" />
+                                  <div>
+                                      <span className="font-medium">Classic</span>
+                                      <p className="text-xs text-muted-foreground">The original naval combat game. One shot per turn.</p>
+                                  </div>
+                              </Label>
+                              <Label className="flex items-center space-x-3 p-3 border rounded-md has-[input:checked]:bg-secondary cursor-pointer">
+                                  <RadioGroupItem value="salvo" id="r2" />
+                                  <div>
+                                      <span className="font-medium">Salvo</span>
+                                      <p className="text-xs text-muted-foreground">Fire one shot for each of your remaining ships.</p>
+                                  </div>
+                              </Label>
+                              <Label className="flex items-center space-x-3 p-3 border rounded-md has-[input:checked]:bg-secondary cursor-pointer">
+                                  <RadioGroupItem value="nuclear" id="r3" />
+                                  <div>
+                                      <span className="font-medium">Nuclear</span>
+                                      <p className="text-xs text-muted-foreground">One hit, one kill. Each successful hit sinks the ship.</p>
+                                  </div>
+                              </Label>
+                              <Label className="flex items-center space-x-3 p-3 border rounded-md has-[input:checked]:bg-secondary cursor-pointer">
+                                  <RadioGroupItem value="ability" id="r4" />
+                                  <div>
+                                      <span className="font-medium">Ability</span>
+                                      <p className="text-xs text-muted-foreground">Use special abilities to destroy your opponent</p>
+                                  </div>
+                              </Label>
+                          </RadioGroup>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+                
+                <Button onClick={handleStart} className="w-full mt-6" size="lg">
+                    Start Game
+                </Button>
             </CardContent>
         </Card>
 
