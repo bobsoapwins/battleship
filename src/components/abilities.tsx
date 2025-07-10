@@ -53,7 +53,7 @@ export const Abilities = ({ player, onToggleAbility, activeAbility, isPlacement 
                         disabled={abilities.sonar.uses <= 0}
                     >
                         <ScanSearch className="mr-2" />
-                        Sonar ({abilities.sonar.uses})
+                        Sonar ({abilities.sonar.uses > 0 ? abilities.sonar.uses : 'Disabled'})
                     </Button>
                     <Button 
                         onClick={() => onToggleAbility('tomahawk')}
@@ -61,7 +61,7 @@ export const Abilities = ({ player, onToggleAbility, activeAbility, isPlacement 
                         disabled={abilities.tomahawk.uses <= 0}
                     >
                         <Rocket className="mr-2" />
-                        Tomahawk ({abilities.tomahawk.uses})
+                        Tomahawk ({abilities.tomahawk.uses > 0 ? abilities.tomahawk.uses : 'Disabled'})
                     </Button>
                     <Button
                         onClick={() => onToggleAbility('submarineTorpedo')}
@@ -69,7 +69,7 @@ export const Abilities = ({ player, onToggleAbility, activeAbility, isPlacement 
                         disabled={abilities.submarineTorpedo.uses <= 0 || !!player.ships.find(s => s.name === 'Submarine')?.sunk}
                     >
                         <Target className="mr-2" />
-                        Submarine Torpedo ({abilities.submarineTorpedo.uses})
+                        Submarine Torpedo ({abilities.submarineTorpedo.uses > 0 && !player.ships.find(s => s.name === 'Submarine')?.sunk ? abilities.submarineTorpedo.uses : 'Disabled'})
                     </Button>
                 </div>
             </CardContent>
