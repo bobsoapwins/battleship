@@ -36,7 +36,7 @@ const abilityDetails: Record<AbilityKey, { title: string, description: string }>
     },
     tomahawk: {
         title: "Tomahawk Strike",
-        description: "Launch a strike on a 3x3 area, hitting all cells.",
+        description: "Launch a strike on a 3x3 area, hitting 9 cells.",
     },
     mine: {
         title: "Defensive Mines",
