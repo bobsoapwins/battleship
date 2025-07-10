@@ -12,8 +12,10 @@ import type { GameMode, AbilityConfig } from '@/lib/game';
 import {
   AlertDialog,
   AlertDialogAction,
+  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
+  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
@@ -116,7 +118,7 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
             <CardContent>
                 <Accordion type="single" value={`item-${currentStep}`} onValueChange={(value) => setCurrentStep(parseInt(value.split('-')[1]))} className="w-full">
                   <AccordionItem value="item-1">
-                    <AccordionTrigger className="text-lg font-headline">Step 1: Game Type</AccordionTrigger>
+                    <AccordionTrigger className="text-lg font-headline hover:no-underline">Step 1: Game Type</AccordionTrigger>
                     <AccordionContent>
                       <div className="pt-2">
                         <RadioGroup value={gameType} onValueChange={(v) => setGameType(v as GameType)} className="gap-4">
@@ -140,7 +142,7 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                   </AccordionItem>
 
                   <AccordionItem value="item-2" disabled={currentStep < 2}>
-                    <AccordionTrigger className="text-lg font-headline">Step 2: Player Names</AccordionTrigger>
+                    <AccordionTrigger className="text-lg font-headline hover:no-underline">Step 2: Player Names</AccordionTrigger>
                     <AccordionContent>
                       <div className="grid gap-4 pt-2">
                           <div className="space-y-2">
@@ -167,7 +169,7 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                   </AccordionItem>
 
                   <AccordionItem value="item-3" disabled={currentStep < 3}>
-                    <AccordionTrigger className="text-lg font-headline">Step 3: Game Mode</AccordionTrigger>
+                    <AccordionTrigger className="text-lg font-headline hover:no-underline">Step 3: Game Mode</AccordionTrigger>
                     <AccordionContent>
                       <div className="pt-2">
                           <RadioGroup value={gameMode} onValueChange={handleGameModeChange} className="gap-2">
@@ -230,7 +232,10 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                         {selectedModeInfo.description}
                     </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogAction onClick={proceedFromInfoDialog}>Proceed to Battle</AlertDialogAction>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Change Gamemode</AlertDialogCancel>
+                    <AlertDialogAction onClick={proceedFromInfoDialog}>Proceed to Battle</AlertDialogAction>
+                </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
 
