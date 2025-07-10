@@ -2,7 +2,7 @@
 'use client';
 
 import type { FC } from 'react';
-import { Target, Waves, Ship as ShipIcon, Skull } from 'lucide-react';
+import { Target, Waves, Ship as ShipIcon, Skull, Bomb } from 'lucide-react';
 import type { Board, Ship, Point } from '@/lib/game';
 import { GRID_SIZE } from '@/lib/game';
 import { cn } from '@/lib/utils';
@@ -14,11 +14,26 @@ interface GameBoardProps {
   isPlayerBoard: boolean;
   disabled?: boolean;
   lastShot?: Point | null;
+  lastMultiShot?: Point[] | null;
   revealShips?: boolean;
   scannedArea?: Point[] | null;
+  isUsingAbility?: boolean;
+  isPlacingMine?: boolean;
 }
 
-export const GameBoard: FC<GameBoardProps> = ({ boardData, ships, onCellClick, isPlayerBoard, disabled = false, lastShot, revealShips = false, scannedArea = null }) => {
+export const GameBoard: FC<GameBoardProps> = ({ 
+  boardData, 
+  ships, 
+  onCellClick, 
+  isPlayerBoard, 
+  disabled = false, 
+  lastShot, 
+  lastMultiShot,
+  revealShips = false, 
+  scannedArea = null,
+  isUsingAbility = false,
+  isPlacingMine = false,
+}) => {
   
   const getShipAt = (x: number, y: number) => {
     return ships.find(ship => ship.positions.some(pos => pos.x === x && pos.y === y));
@@ -46,11 +61,26 @@ export const GameBoard: FC<GameBoardProps> = ({ boardData, ships, onCellClick, i
         if (isPlayerBoard || revealShips || isScanned(x, y)) {
           return <ShipIcon className="w-5 h-5 text-primary-foreground/80" />;
         }
-        return null; // Hide opponent ships
+        return null;
+      case 'mine':
+        if (isPlayerBoard) {
+            return <Bomb className="w-5 h-5 text-yellow-400" />
+        }
+        return null;
       default:
         return null;
     }
   };
+
+  const isLastShot = (x: number, y: number) => {
+    if (lastShot) {
+      return lastShot.x === x && lastShot.y === y;
+    }
+    if (lastMultiShot) {
+      return lastMultiShot.some(p => p.x === x && p.y === y);
+    }
+    return false;
+  }
 
   return (
     <div className="grid grid-cols-10 grid-rows-10 gap-1 bg-primary/20 p-2 rounded-lg shadow-inner aspect-square w-full max-w-sm mx-auto md:max-w-md lg:max-w-lg">
@@ -58,7 +88,7 @@ export const GameBoard: FC<GameBoardProps> = ({ boardData, ships, onCellClick, i
         row.map((cell, x) => {
           const ship = getShipAt(x, y);
           const isShipSunk = isSunk(ship);
-          const isLastShot = lastShot?.x === x && lastShot.y === y;
+          const wasLastShot = isLastShot(x, y);
           const showShip = isPlayerBoard || (revealShips && cell === 'ship');
           const cellIsScanned = !isPlayerBoard && isScanned(x, y);
           
@@ -68,13 +98,16 @@ export const GameBoard: FC<GameBoardProps> = ({ boardData, ships, onCellClick, i
               onClick={() => !disabled && onCellClick(x, y)}
               className={cn(
                 'w-full h-full rounded-sm flex items-center justify-center aspect-square transition-colors duration-200 relative',
-                disabled ? 'cursor-not-allowed' : 'cursor-pointer hover:bg-accent/50',
+                disabled ? 'cursor-not-allowed' : 'cursor-pointer',
+                !disabled && !isUsingAbility && !isPlacingMine && 'hover:bg-accent/50',
+                isUsingAbility && !disabled && 'cursor-crosshair hover:bg-red-500/50',
+                isPlacingMine && !disabled && 'cursor-crosshair hover:bg-yellow-500/50',
                 showShip ? 'bg-primary/80' : 'bg-primary/40',
                 cell === 'hit' && 'bg-red-500/80',
                 isShipSunk && 'bg-red-800/80',
                 cell === 'miss' && 'bg-blue-300/50',
-                cellIsScanned && 'bg-accent/70 animate-pulse',
-                isLastShot && 'animate-shot z-10'
+                cellIsScanned && !revealShips && 'bg-accent/70 animate-pulse',
+                wasLastShot && 'animate-shot z-10'
               )}
             >
               {renderCellContent(x, y)}

@@ -27,8 +27,8 @@ const GameBoard = dynamic(() => import('@/components/game-board').then(mod => mo
 
 
 export default function Home() {
-  const { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin, endPlacement, activateSonar } = useGame();
-  const { phase, players, currentPlayerId, message, placementState, isTransitioning, shotResult, readyStates, winner, gameMode, scannedArea } = gameState;
+  const { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin, endPlacement, toggleAbility } = useGame();
+  const { phase, players, currentPlayerId, message, placementState, isTransitioning, shotResult, readyStates, winner, gameMode, scannedArea, activeAbility } = gameState;
   const [isClient, setIsClient] = useState(false);
   const [currentScreen, setCurrentScreen] = useState<'booting' | 'intro' | 'game'>('booting');
   const [revealOpponent, setRevealOpponent] = useState(false);
@@ -152,6 +152,16 @@ export default function Home() {
             totalShips={SHIP_TYPES.length}
             placementComplete={placementState.placementComplete}
           />
+          {gameMode === 'electronic' && (
+            <div className="mt-4">
+               <Abilities 
+                player={playerToPlace} 
+                onToggleAbility={toggleAbility} 
+                activeAbility={activeAbility}
+                isPlacement={true}
+              />
+            </div>
+          )}
         </div>
         <div className="w-full lg:w-2/3">
           <h2 className="text-2xl font-headline mb-4 text-center">{playerToPlace.name}'s Grid</h2>
@@ -160,7 +170,8 @@ export default function Home() {
             ships={playerToPlace.ships}
             onCellClick={(x, y) => placeShip(x, y)}
             isPlayerBoard={true}
-            disabled={placementState.placementComplete}
+            disabled={placementState.placementComplete && activeAbility !== 'mine'}
+            isPlacingMine={activeAbility === 'mine'}
           />
         </div>
       </div>
@@ -196,15 +207,17 @@ export default function Home() {
                 onCellClick={handleFire}
                 isPlayerBoard={false}
                 disabled={phase !== 'battle' || isTransitioning}
-                lastShot={shotResult}
+                lastShot={Array.isArray(shotResult) ? null : shotResult}
+                lastMultiShot={Array.isArray(shotResult) ? shotResult : null}
                 revealShips={revealOpponent}
                 scannedArea={scannedArea}
+                isUsingAbility={!!activeAbility}
               />
             </div>
           </div>
           {gameMode === 'electronic' && phase === 'battle' && !isTransitioning && (
             <div className="w-full max-w-2xl mx-auto">
-              <Abilities onActivateSonar={activateSonar} />
+              <Abilities player={currentPlayer} onToggleAbility={toggleAbility} activeAbility={activeAbility} />
             </div>
           )}
         </div>

@@ -15,6 +15,7 @@ export type ShipType = (typeof SHIP_TYPES)[number];
 export type ShipName = ShipType['name'];
 export type Orientation = 'horizontal' | 'vertical';
 export type GameMode = 'classic' | 'salvo' | 'nuclear' | 'electronic';
+export type ActiveAbility = 'sonar' | 'tomahawk' | 'mine' | null;
 
 export interface Ship {
   name: ShipName;
@@ -24,7 +25,7 @@ export interface Ship {
   sunk: boolean;
 }
 
-export type CellType = 'empty' | 'ship' | 'hit' | 'miss';
+export type CellType = 'empty' | 'ship' | 'hit' | 'miss' | 'mine';
 
 export type Board = CellType[][];
 
@@ -34,12 +35,20 @@ export type PlayerStats = {
     misses: number;
 }
 
+export type AbilitiesState = {
+  sonar: { uses: number; cooldown: number };
+  tomahawk: { uses: number; cooldown: number };
+  mine: { uses: number; cooldown: number };
+};
+
 export type Player = {
   id: 1 | 2;
   name: string;
   board: Board;
   ships: Ship[];
   stats: PlayerStats;
+  abilities: AbilitiesState;
+  mines: Point[];
 };
 
 export type GamePhase = 'setup' | 'placement' | 'intermission' | 'pre-battle' | 'battle' | 'gameover';
@@ -65,11 +74,11 @@ export interface GameState {
   message: string;
   placementState: PlacementState;
   isTransitioning: boolean;
-  shotResult: Point | null;
+  shotResult: Point | null | Point[];
   readyStates: ReadyStates;
   shotsRemaining: number;
   scannedArea: Point[] | null;
-  isScanning: boolean;
+  activeAbility: ActiveAbility;
 }
 
 export const createEmptyBoard = (): Board =>
