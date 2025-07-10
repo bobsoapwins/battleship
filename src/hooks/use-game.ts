@@ -6,6 +6,7 @@ import type {
   Player,
   Ship,
   PlayerStats,
+  GameMode,
 } from '@/lib/game';
 import {
   SHIP_TYPES,
@@ -29,6 +30,7 @@ const initialPlayer = (id: 1 | 2): Player => ({
 
 const getInitialState = (): GameState => ({
   phase: 'setup',
+  gameMode: 'classic',
   players: [initialPlayer(1), initialPlayer(2)],
   currentPlayerId: 1,
   winner: null,
@@ -44,7 +46,8 @@ const getInitialState = (): GameState => ({
   readyStates: {
       player1: false,
       player2: false,
-  }
+  },
+  shotsRemaining: 1,
 });
 
 export const useGame = () => {
@@ -54,7 +57,7 @@ export const useGame = () => {
     setGameState(getInitialState());
   }, []);
 
-  const setPlayerNames = useCallback((player1Name: string, player2Name: string) => {
+  const setPlayerNames = useCallback((player1Name: string, player2Name: string, gameMode: GameMode) => {
     setGameState(prev => {
         if (prev.phase !== 'setup') return prev;
 
@@ -67,6 +70,7 @@ export const useGame = () => {
             ...prev,
             players: newPlayers,
             phase: 'placement',
+            gameMode: gameMode,
             message: `${newPlayers[0].name}, place your fleet.`
         }
     });
@@ -207,12 +211,20 @@ export const useGame = () => {
   const startBattle = useCallback(() => {
     setGameState(prev => {
         if(prev.phase !== 'pre-battle' || !prev.readyStates.player1 || !prev.readyStates.player2) return prev;
+        
+        const currentPlayer = prev.players[0];
+        let shotsRemaining = 1;
+        if (prev.gameMode === 'salvo') {
+            shotsRemaining = currentPlayer.ships.filter(s => !s.sunk).length;
+        }
+
         return {
             ...prev,
             phase: 'battle',
             currentPlayerId: 1,
             isTransitioning: false,
-            message: `${prev.players[0].name}, your turn.`
+            shotsRemaining,
+            message: `${currentPlayer.name}, your turn. ${prev.gameMode === 'salvo' ? `(${shotsRemaining} shots remaining)` : ''}`
         }
     })
   }, []);
@@ -220,14 +232,23 @@ export const useGame = () => {
   const confirmShotAndSwitchTurn = useCallback(() => {
     setGameState(currentGameState => {
         if (currentGameState.phase !== 'battle' || !currentGameState.isTransitioning) return currentGameState;
+        
         const nextPlayerId = currentGameState.currentPlayerId === 1 ? 2 : 1;
         const nextPlayer = currentGameState.players[nextPlayerId - 1];
+        
+        let shotsRemaining = 1;
+        if (currentGameState.gameMode === 'salvo') {
+            shotsRemaining = nextPlayer.ships.filter(s => !s.sunk).length;
+            if (shotsRemaining === 0) shotsRemaining = 1; // Failsafe
+        }
+        
         return {
             ...currentGameState,
             isTransitioning: false,
             shotResult: null,
             currentPlayerId: nextPlayerId,
-            message: `${nextPlayer.name}, your turn.`
+            shotsRemaining,
+            message: `${nextPlayer.name}, your turn. ${currentGameState.gameMode === 'salvo' ? `(${shotsRemaining} shots remaining)`: ''}`
         }
     });
   }, []);
@@ -236,7 +257,7 @@ export const useGame = () => {
     setGameState((prev) => {
       if (prev.phase !== 'battle' || prev.isTransitioning) return prev;
 
-      const { currentPlayerId, players } = prev;
+      const { currentPlayerId, players, gameMode, shotsRemaining } = prev;
       const currentPlayer = players[currentPlayerId - 1];
       const opponentId = currentPlayerId === 1 ? 2 : 1;
       const opponent = players[opponentId - 1];
@@ -248,6 +269,7 @@ export const useGame = () => {
       const newOpponentBoard = opponent.board.map(row => [...row]);
       let resultMessage = '';
       let newOpponentShips = [...opponent.ships];
+      let shotHit = false;
 
       const newCurrentPlayerStats: PlayerStats = {
           ...currentPlayer.stats,
@@ -255,6 +277,7 @@ export const useGame = () => {
       }
 
       if (opponent.board[y][x] === 'ship') {
+        shotHit = true;
         newOpponentBoard[y][x] = 'hit';
         newCurrentPlayerStats.hits += 1;
         let allShipsSunk = true;
@@ -303,6 +326,18 @@ export const useGame = () => {
       newPlayers[opponentId-1] = newOpponent;
       newPlayers[currentPlayerId-1] = newCurrentPlayer;
       
+      const newShotsRemaining = shotsRemaining - 1;
+
+      if (gameMode === 'salvo' && newShotsRemaining > 0) {
+        return {
+          ...prev,
+          players: newPlayers,
+          shotsRemaining: newShotsRemaining,
+          shotResult: { x, y },
+          message: `${resultMessage} ${newShotsRemaining} shots remaining.`
+        }
+      }
+
       return {
         ...prev,
         players: newPlayers,

@@ -15,6 +15,7 @@ import type { GameAnalysisInput, GameAnalysisOutput } from '@/ai/flows/game-anal
 import { getGameAnalysis } from '@/ai/flows/game-analysis-flow';
 import { AIInsights } from '@/components/ai-insights';
 import { IntroScreen } from '@/components/intro-screen';
+import type { GameMode } from '@/lib/game';
 
 
 const GameBoard = dynamic(() => import('@/components/game-board').then(mod => mod.GameBoard), {
@@ -127,6 +128,10 @@ export default function Home() {
 
   const currentPlayer = players[currentPlayerId - 1];
   const opponentPlayer = players[currentPlayerId === 1 ? 1 : 0];
+
+  const handleGameStart = (player1Name: string, player2Name: string, gameMode: GameMode) => {
+    setPlayerNames(player1Name, player2Name, gameMode);
+  };
 
   const renderPlacementPhase = () => {
     const playerToPlace = players[placementState.playerToPlace - 1];
@@ -246,7 +251,7 @@ export default function Home() {
   if (phase === 'setup') {
     return (
       <main className={cn(mainContentClass, "justify-center")}>
-        <SetupScreen onGameStart={setPlayerNames} />
+        <SetupScreen onGameStart={handleGameStart} />
       </main>
     );
   }

@@ -11,6 +11,7 @@ export const SHIP_TYPES = [
 export type ShipType = (typeof SHIP_TYPES)[number];
 export type ShipName = ShipType['name'];
 export type Orientation = 'horizontal' | 'vertical';
+export type GameMode = 'classic' | 'salvo';
 
 export interface Ship {
   name: ShipName;
@@ -54,6 +55,7 @@ export interface PlacementState {
 
 export interface GameState {
   phase: GamePhase;
+  gameMode: GameMode;
   players: [Player, Player];
   currentPlayerId: 1 | 2;
   winner: Player | null;
@@ -62,6 +64,7 @@ export interface GameState {
   isTransitioning: boolean;
   shotResult: { x: number; y: number } | null;
   readyStates: ReadyStates;
+  shotsRemaining: number;
 }
 
 export const createEmptyBoard = (): Board =>
