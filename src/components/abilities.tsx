@@ -39,6 +39,10 @@ export const Abilities = ({ player, onToggleAbility, activeAbility, isPlacement 
         )
     }
     
+    const isSonarDisabled = abilities.sonar.uses <= 0;
+    const isTomahawkDisabled = abilities.tomahawk.uses <= 0;
+    const isTorpedoDisabled = abilities.submarineTorpedo.uses <= 0 || !!player.ships.find(s => s.name === 'Submarine')?.sunk;
+
     return (
         <Card>
             <CardHeader>
@@ -50,26 +54,44 @@ export const Abilities = ({ player, onToggleAbility, activeAbility, isPlacement 
                     <Button 
                         onClick={() => onToggleAbility('sonar')} 
                         variant={activeAbility === 'sonar' ? 'default' : 'outline'}
-                        disabled={abilities.sonar.uses <= 0}
+                        disabled={isSonarDisabled}
                     >
-                        <ScanSearch className="mr-2" />
-                        Sonar ({abilities.sonar.uses > 0 ? abilities.sonar.uses : 'Disabled'})
+                        {isSonarDisabled ? (
+                            'Disabled'
+                        ) : (
+                            <>
+                                <ScanSearch className="mr-2" />
+                                Sonar ({abilities.sonar.uses})
+                            </>
+                        )}
                     </Button>
                     <Button 
                         onClick={() => onToggleAbility('tomahawk')}
                         variant={activeAbility === 'tomahawk' ? 'default' : 'outline'}
-                        disabled={abilities.tomahawk.uses <= 0}
+                        disabled={isTomahawkDisabled}
                     >
-                        <Rocket className="mr-2" />
-                        Tomahawk ({abilities.tomahawk.uses > 0 ? abilities.tomahawk.uses : 'Disabled'})
+                        {isTomahawkDisabled ? (
+                            'Disabled'
+                        ) : (
+                            <>
+                                <Rocket className="mr-2" />
+                                Tomahawk ({abilities.tomahawk.uses})
+                            </>
+                        )}
                     </Button>
                     <Button
                         onClick={() => onToggleAbility('submarineTorpedo')}
                         variant={activeAbility === 'submarineTorpedo' ? 'default' : 'outline'}
-                        disabled={abilities.submarineTorpedo.uses <= 0 || !!player.ships.find(s => s.name === 'Submarine')?.sunk}
+                        disabled={isTorpedoDisabled}
                     >
-                        <Target className="mr-2" />
-                        Submarine Torpedo ({abilities.submarineTorpedo.uses > 0 && !player.ships.find(s => s.name === 'Submarine')?.sunk ? abilities.submarineTorpedo.uses : 'Disabled'})
+                        {isTorpedoDisabled ? (
+                            'Disabled'
+                        ) : (
+                             <>
+                                <Target className="mr-2" />
+                                Submarine Torpedo ({abilities.submarineTorpedo.uses})
+                            </>
+                        )}
                     </Button>
                 </div>
             </CardContent>
