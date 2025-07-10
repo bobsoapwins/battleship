@@ -69,17 +69,14 @@ export function AbilityDisclaimer({ open, onProceed, onBack }: AbilityDisclaimer
                 {(Object.keys(abilityDetails) as AbilityKey[]).map((key) => {
                     const isEnabled = abilityConfig[key];
                     return (
-                        <div key={key} className={cn(
-                            "flex items-center space-x-4 p-3 bg-secondary/50 rounded-lg transition-all",
-                            !isEnabled && "opacity-50 bg-secondary/20"
-                        )}>
+                        <div key={key} className="flex items-center space-x-4 p-3 bg-secondary/50 rounded-lg transition-all">
                             <Switch
                                 id={key}
                                 checked={isEnabled}
                                 onCheckedChange={() => handleToggle(key)}
                             />
                             <Label htmlFor={key} className="flex-1 cursor-pointer">
-                                <p className={cn("font-medium", isEnabled ? "text-foreground" : "text-muted-foreground")}>{abilityDetails[key].title}</p>
+                                <p className="font-medium text-foreground">{abilityDetails[key].title}</p>
                                 <p className="text-sm text-muted-foreground font-normal">{abilityDetails[key].description}</p>
                             </Label>
                         </div>
