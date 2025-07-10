@@ -19,7 +19,6 @@ import { AIInsights } from '@/components/ai-insights';
 import { IntroScreen } from '@/components/intro-screen';
 import type { GameMode, AbilityConfig } from '@/lib/game';
 import { Abilities } from '@/components/abilities';
-import { AbilityDisclaimer } from '@/components/ability-disclaimer';
 
 
 const GameBoard = dynamic(() => import('@/components/game-board').then(mod => mod.GameBoard), {
@@ -38,8 +37,6 @@ export default function Home() {
   const [insights, setInsights] = useState<GameAnalysisOutput | null>(null);
   const [isLoadingInsights, setIsLoadingInsights] = useState(false);
   const [gameVisible, setGameVisible] = useState(false);
-  const [showAbilityDisclaimer, setShowAbilityDisclaimer] = useState(false);
-  const [pendingGameSettings, setPendingGameSettings] = useState<{ p1: string; p2: string; mode: GameMode } | null>(null);
 
   useEffect(() => {
     setIsClient(true);
@@ -135,26 +132,8 @@ export default function Home() {
   const currentPlayer = players[currentPlayerId - 1];
   const opponentPlayer = players[currentPlayerId === 1 ? 1 : 0];
 
-  const handleGameStart = (player1Name: string, player2Name: string, mode: GameMode) => {
-    if (mode === 'ability') {
-      setPendingGameSettings({ p1: player1Name, p2: player2Name, mode });
-      setShowAbilityDisclaimer(true);
-    } else {
-      setPlayerNames(player1Name, player2Name, mode, null);
-    }
-  };
-
-  const handleDisclaimerProceed = (abilityConfig: AbilityConfig) => {
-    if (pendingGameSettings) {
-      setPlayerNames(pendingGameSettings.p1, pendingGameSettings.p2, pendingGameSettings.mode, abilityConfig);
-      setPendingGameSettings(null);
-    }
-    setShowAbilityDisclaimer(false);
-  };
-
-  const handleDisclaimerBack = () => {
-    setPendingGameSettings(null);
-    setShowAbilityDisclaimer(false);
+  const handleGameStart = (player1Name: string, player2Name: string, mode: GameMode, abilityConfig: AbilityConfig | null) => {
+    setPlayerNames(player1Name, player2Name, mode, abilityConfig);
   };
 
   const renderPlacementPhase = () => {
@@ -297,11 +276,6 @@ export default function Home() {
     return (
       <main className={cn(mainContentClass, "justify-center")}>
         <SetupScreen onGameStart={handleGameStart} />
-        <AbilityDisclaimer
-          open={showAbilityDisclaimer}
-          onProceed={handleDisclaimerProceed}
-          onBack={handleDisclaimerBack}
-        />
       </main>
     );
   }

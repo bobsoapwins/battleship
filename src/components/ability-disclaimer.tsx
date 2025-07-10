@@ -15,6 +15,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import type { AbilityConfig, AbilityKey } from '@/lib/game';
+import { cn } from '@/lib/utils';
 
 interface AbilityDisclaimerProps {
   open: boolean;
@@ -55,7 +56,7 @@ export function AbilityDisclaimer({ open, onProceed, onBack }: AbilityDisclaimer
   }
 
   return (
-    <AlertDialog open={open}>
+    <AlertDialog open={open} onOpenChange={(isOpen) => !isOpen && onBack()}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="font-headline text-2xl">Configure Abilities</AlertDialogTitle>
@@ -65,19 +66,25 @@ export function AbilityDisclaimer({ open, onProceed, onBack }: AbilityDisclaimer
                 Enable or disable abilities for this match. Each player gets a limited number of uses per enabled ability.
               </p>
               <div className="space-y-4">
-                {(Object.keys(abilityDetails) as AbilityKey[]).map((key) => (
-                    <div key={key} className="flex items-center space-x-4 p-3 bg-secondary/50 rounded-lg">
-                        <Switch
-                            id={key}
-                            checked={abilityConfig[key]}
-                            onCheckedChange={() => handleToggle(key)}
-                        />
-                        <Label htmlFor={key} className="flex-1 cursor-pointer">
-                            <p className="font-medium text-foreground">{abilityDetails[key].title}</p>
-                            <p className="text-sm text-muted-foreground font-normal">{abilityDetails[key].description}</p>
-                        </Label>
-                    </div>
-                ))}
+                {(Object.keys(abilityDetails) as AbilityKey[]).map((key) => {
+                    const isEnabled = abilityConfig[key];
+                    return (
+                        <div key={key} className={cn(
+                            "flex items-center space-x-4 p-3 bg-secondary/50 rounded-lg transition-all",
+                            !isEnabled && "opacity-50 bg-secondary/20"
+                        )}>
+                            <Switch
+                                id={key}
+                                checked={isEnabled}
+                                onCheckedChange={() => handleToggle(key)}
+                            />
+                            <Label htmlFor={key} className="flex-1 cursor-pointer">
+                                <p className={cn("font-medium", isEnabled ? "text-foreground" : "text-muted-foreground")}>{abilityDetails[key].title}</p>
+                                <p className="text-sm text-muted-foreground font-normal">{abilityDetails[key].description}</p>
+                            </Label>
+                        </div>
+                    )
+                })}
               </div>
             </div>
           </AlertDialogDescription>
