@@ -119,7 +119,7 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
             <CardContent>
                 <Accordion type="single" value={`item-${currentStep}`} className="w-full">
                   <AccordionItem value="item-1">
-                    <AccordionTrigger className="text-lg font-headline cursor-default">Step 1: Game Type</AccordionTrigger>
+                    <AccordionTrigger className="text-lg font-headline cursor-default">Game Type</AccordionTrigger>
                     <AccordionContent>
                       <div className="pt-2">
                         <RadioGroup value={gameType} onValueChange={(v) => setGameType(v as GameType)} className="gap-4">
@@ -143,7 +143,7 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                   </AccordionItem>
 
                   <AccordionItem value="item-2">
-                    <AccordionTrigger className="text-lg font-headline cursor-default">Step 2: Player Names</AccordionTrigger>
+                    <AccordionTrigger className="text-lg font-headline cursor-default">Player Names</AccordionTrigger>
                     <AccordionContent>
                       <div className="grid gap-4 pt-2">
                           <div className="space-y-2">
@@ -170,7 +170,7 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                   </AccordionItem>
 
                   <AccordionItem value="item-3">
-                    <AccordionTrigger className="text-lg font-headline cursor-default">Step 3: Game Mode</AccordionTrigger>
+                    <AccordionTrigger className="text-lg font-headline cursor-default">Game Mode</AccordionTrigger>
                     <AccordionContent>
                       <div className="pt-2">
                           <RadioGroup value={gameMode} onValueChange={handleGameModeChange} className="gap-2">
