@@ -8,11 +8,13 @@ import type {
   Ship,
   PlayerStats,
   GameMode,
+  Point,
 } from '@/lib/game';
 import {
   SHIP_TYPES,
   createEmptyBoard,
   canPlaceShip,
+  GRID_SIZE,
 } from '@/lib/game';
 
 const initialStats = (): PlayerStats => ({
@@ -49,6 +51,8 @@ const getInitialState = (): GameState => ({
       player2: false,
   },
   shotsRemaining: 1,
+  scannedArea: null,
+  isScanning: false,
 });
 
 export const useGame = () => {
@@ -249,14 +253,49 @@ export const useGame = () => {
             shotResult: null,
             currentPlayerId: nextPlayerId,
             shotsRemaining,
+            scannedArea: null,
+            isScanning: false,
             message: `${nextPlayer.name}, your turn. ${currentGameState.gameMode === 'salvo' ? `(${shotsRemaining} shots remaining)`: ''}`
         }
+    });
+  }, []);
+
+  const activateSonar = useCallback(() => {
+    setGameState(prev => {
+      if (prev.phase !== 'battle' || prev.isTransitioning || prev.gameMode !== 'electronic') return prev;
+      return {
+        ...prev,
+        isScanning: true,
+        message: 'Sonar activated. Select a center point for your scan.',
+      }
     });
   }, []);
 
   const handleFire = useCallback((x: number, y: number) => {
     setGameState((prev) => {
       if (prev.phase !== 'battle' || prev.isTransitioning) return prev;
+
+      // Handle Sonar Scan
+      if (prev.isScanning) {
+        const scannedArea: Point[] = [];
+        for(let i = -1; i <= 1; i++) {
+          for (let j = -1; j <= 1; j++) {
+            const scanX = x + i;
+            const scanY = y + j;
+            if(scanX >= 0 && scanX < GRID_SIZE && scanY >= 0 && scanY < GRID_SIZE) {
+              scannedArea.push({ x: scanX, y: scanY });
+            }
+          }
+        }
+        
+        return {
+          ...prev,
+          scannedArea,
+          isScanning: false,
+          isTransitioning: true, // Use a turn to scan
+          message: 'Scan complete. The area has been revealed. Pass to opponent.'
+        }
+      }
 
       const { currentPlayerId, players, gameMode, shotsRemaining } = prev;
       const currentPlayer = players[currentPlayerId - 1];
@@ -287,9 +326,7 @@ export const useGame = () => {
             const isHit = ship.positions.some(p => p.x === x && p.y === y);
             if (isHit) {
                 if (gameMode === 'nuclear') {
-                    // Instantly sink the ship
                     resultMessage = `Opponent's ${ship.name} was obliterated!`;
-                    // Mark all positions as hit
                     ship.positions.forEach(p => {
                         if (newOpponentBoard[p.y][p.x] === 'ship') {
                             newOpponentBoard[p.y][p.x] = 'hit';
@@ -298,7 +335,6 @@ export const useGame = () => {
                     return { ...ship, hits: ship.positions, sunk: true };
                 }
 
-                // Classic and Salvo logic
                 const newHits = [...ship.hits, {x, y}];
                 const sunk = newHits.length === ship.size;
                 if(sunk) {
@@ -325,6 +361,7 @@ export const useGame = () => {
                 message: `Game Over. ${players[currentPlayerId - 1].name} is the winner.`,
                 isTransitioning: false,
                 shotResult: { x, y },
+                isScanning: false,
             };
         }
       } else {
@@ -358,6 +395,7 @@ export const useGame = () => {
         isTransitioning: true,
         shotResult: { x, y },
         message: resultMessage,
+        isScanning: false,
       };
     });
   }, []);
@@ -382,9 +420,10 @@ export const useGame = () => {
             winner: winner,
             message: `Game Over. ${winner.name} is the winner.`,
             isTransitioning: false,
+            isScanning: false,
         }
     })
   }, []);
 
-  return { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin, endPlacement };
+  return { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin, endPlacement, activateSonar };
 };

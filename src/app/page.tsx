@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -16,6 +17,7 @@ import { getGameAnalysis } from '@/ai/flows/game-analysis-flow';
 import { AIInsights } from '@/components/ai-insights';
 import { IntroScreen } from '@/components/intro-screen';
 import type { GameMode } from '@/lib/game';
+import { Abilities } from '@/components/abilities';
 
 
 const GameBoard = dynamic(() => import('@/components/game-board').then(mod => mod.GameBoard), {
@@ -25,8 +27,8 @@ const GameBoard = dynamic(() => import('@/components/game-board').then(mod => mo
 
 
 export default function Home() {
-  const { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin, endPlacement } = useGame();
-  const { phase, players, currentPlayerId, message, placementState, isTransitioning, shotResult, readyStates, winner } = gameState;
+  const { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin, endPlacement, activateSonar } = useGame();
+  const { phase, players, currentPlayerId, message, placementState, isTransitioning, shotResult, readyStates, winner, gameMode, scannedArea } = gameState;
   const [isClient, setIsClient] = useState(false);
   const [currentScreen, setCurrentScreen] = useState<'booting' | 'intro' | 'game'>('booting');
   const [revealOpponent, setRevealOpponent] = useState(false);
@@ -167,37 +169,45 @@ export default function Home() {
 
   const renderBattlePhase = () => {
     return (
-      <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
-        {/* My Board */}
-        <div className={cn(
-          "w-full lg:w-1/2 p-4 rounded-xl transition-opacity duration-500",
-          isTransitioning ? "opacity-0" : "opacity-50"
-        )}>
-          <h2 className="text-2xl font-headline mb-4 text-center">{`${currentPlayer.name}'s Fleet (You)`}</h2>
-          <GameBoard
-            boardData={currentPlayer.board}
-            ships={currentPlayer.ships}
-            onCellClick={() => {}}
-            isPlayerBoard={true}
-            disabled={true}
-            lastShot={null}
-          />
-        </div>
+      <div className="flex flex-col gap-8">
+          <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
+            {/* My Board */}
+            <div className={cn(
+              "w-full lg:w-1/2 p-4 rounded-xl transition-opacity duration-500",
+              isTransitioning ? "opacity-0" : "opacity-50"
+            )}>
+              <h2 className="text-2xl font-headline mb-4 text-center">{`${currentPlayer.name}'s Fleet (You)`}</h2>
+              <GameBoard
+                boardData={currentPlayer.board}
+                ships={currentPlayer.ships}
+                onCellClick={() => {}}
+                isPlayerBoard={true}
+                disabled={true}
+                lastShot={null}
+              />
+            </div>
 
-        {/* Opponent's Board */}
-        <div className={cn("w-full lg:w-1/2 p-4 rounded-xl transition-all duration-500", phase === 'battle' && !isTransitioning ? 'bg-primary/10 ring-2 ring-accent' : 'opacity-80')}>
-          <h2 className="text-2xl font-headline mb-4 text-center">{`${opponentPlayer.name}'s Fleet (Opponent)`}</h2>
-          <GameBoard
-            boardData={opponentPlayer.board}
-            ships={opponentPlayer.ships}
-            onCellClick={handleFire}
-            isPlayerBoard={false}
-            disabled={phase !== 'battle' || isTransitioning}
-            lastShot={shotResult}
-            revealShips={revealOpponent}
-          />
+            {/* Opponent's Board */}
+            <div className={cn("w-full lg:w-1/2 p-4 rounded-xl transition-all duration-500", phase === 'battle' && !isTransitioning ? 'bg-primary/10 ring-2 ring-accent' : 'opacity-80')}>
+              <h2 className="text-2xl font-headline mb-4 text-center">{`${opponentPlayer.name}'s Fleet (Opponent)`}</h2>
+              <GameBoard
+                boardData={opponentPlayer.board}
+                ships={opponentPlayer.ships}
+                onCellClick={handleFire}
+                isPlayerBoard={false}
+                disabled={phase !== 'battle' || isTransitioning}
+                lastShot={shotResult}
+                revealShips={revealOpponent}
+                scannedArea={scannedArea}
+              />
+            </div>
+          </div>
+          {gameMode === 'electronic' && phase === 'battle' && !isTransitioning && (
+            <div className="w-full max-w-2xl mx-auto">
+              <Abilities onActivateSonar={activateSonar} />
+            </div>
+          )}
         </div>
-      </div>
     );
   };
 

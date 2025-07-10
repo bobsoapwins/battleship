@@ -1,8 +1,9 @@
+
 'use client';
 
 import type { FC } from 'react';
 import { Target, Waves, Ship as ShipIcon, Skull } from 'lucide-react';
-import type { Board, Ship } from '@/lib/game';
+import type { Board, Ship, Point } from '@/lib/game';
 import { GRID_SIZE } from '@/lib/game';
 import { cn } from '@/lib/utils';
 
@@ -12,17 +13,23 @@ interface GameBoardProps {
   onCellClick: (x: number, y: number) => void;
   isPlayerBoard: boolean;
   disabled?: boolean;
-  lastShot?: { x: number; y: number } | null;
+  lastShot?: Point | null;
   revealShips?: boolean;
+  scannedArea?: Point[] | null;
 }
 
-export const GameBoard: FC<GameBoardProps> = ({ boardData, ships, onCellClick, isPlayerBoard, disabled = false, lastShot, revealShips = false }) => {
+export const GameBoard: FC<GameBoardProps> = ({ boardData, ships, onCellClick, isPlayerBoard, disabled = false, lastShot, revealShips = false, scannedArea = null }) => {
   
   const getShipAt = (x: number, y: number) => {
     return ships.find(ship => ship.positions.some(pos => pos.x === x && pos.y === y));
   };
   
   const isSunk = (ship: Ship | undefined) => ship?.sunk;
+
+  const isScanned = (x: number, y: number) => {
+    if (!scannedArea) return false;
+    return scannedArea.some(pos => pos.x === x && pos.y === y);
+  };
   
   const renderCellContent = (x: number, y: number) => {
     const cell = boardData[y][x];
@@ -36,7 +43,7 @@ export const GameBoard: FC<GameBoardProps> = ({ boardData, ships, onCellClick, i
       case 'miss':
         return <Waves className="w-5 h-5 text-white/70" />;
       case 'ship':
-        if (isPlayerBoard || revealShips) {
+        if (isPlayerBoard || revealShips || isScanned(x, y)) {
           return <ShipIcon className="w-5 h-5 text-primary-foreground/80" />;
         }
         return null; // Hide opponent ships
@@ -53,6 +60,7 @@ export const GameBoard: FC<GameBoardProps> = ({ boardData, ships, onCellClick, i
           const isShipSunk = isSunk(ship);
           const isLastShot = lastShot?.x === x && lastShot.y === y;
           const showShip = isPlayerBoard || (revealShips && cell === 'ship');
+          const cellIsScanned = !isPlayerBoard && isScanned(x, y);
           
           return (
             <div
@@ -65,6 +73,7 @@ export const GameBoard: FC<GameBoardProps> = ({ boardData, ships, onCellClick, i
                 cell === 'hit' && 'bg-red-500/80',
                 isShipSunk && 'bg-red-800/80',
                 cell === 'miss' && 'bg-blue-300/50',
+                cellIsScanned && 'bg-accent/70 animate-pulse',
                 isLastShot && 'animate-shot z-10'
               )}
             >

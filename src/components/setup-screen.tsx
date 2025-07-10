@@ -81,6 +81,13 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                                 <p className="text-xs text-muted-foreground">One hit, one kill. Each successful hit sinks the ship.</p>
                             </Label>
                         </div>
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="electronic" id="r4" />
+                            <Label htmlFor="r4" className="font-normal">
+                                <span className="font-medium">Electronic</span>
+                                <p className="text-xs text-muted-foreground">Use special abilities like Sonar Scan.</p>
+                            </Label>
+                        </div>
                     </RadioGroup>
                 </div>
 

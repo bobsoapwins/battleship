@@ -9,16 +9,18 @@ export const SHIP_TYPES = [
   { name: 'Destroyer', size: 2 },
 ] as const;
 
+export type Point = { x: number; y: number };
+
 export type ShipType = (typeof SHIP_TYPES)[number];
 export type ShipName = ShipType['name'];
 export type Orientation = 'horizontal' | 'vertical';
-export type GameMode = 'classic' | 'salvo' | 'nuclear';
+export type GameMode = 'classic' | 'salvo' | 'nuclear' | 'electronic';
 
 export interface Ship {
   name: ShipName;
   size: number;
-  positions: { x: number; y: number }[];
-  hits: { x: number; y: number }[];
+  positions: Point[];
+  hits: Point[];
   sunk: boolean;
 }
 
@@ -63,9 +65,11 @@ export interface GameState {
   message: string;
   placementState: PlacementState;
   isTransitioning: boolean;
-  shotResult: { x: number; y: number } | null;
+  shotResult: Point | null;
   readyStates: ReadyStates;
   shotsRemaining: number;
+  scannedArea: Point[] | null;
+  isScanning: boolean;
 }
 
 export const createEmptyBoard = (): Board =>
