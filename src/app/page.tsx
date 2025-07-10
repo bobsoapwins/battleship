@@ -17,7 +17,7 @@ import type { GameAnalysisInput, GameAnalysisOutput } from '@/ai/flows/game-anal
 import { getGameAnalysis } from '@/ai/flows/game-analysis-flow';
 import { AIInsights } from '@/components/ai-insights';
 import { IntroScreen } from '@/components/intro-screen';
-import type { GameMode } from '@/lib/game';
+import type { GameMode, AbilityConfig } from '@/lib/game';
 import { Abilities } from '@/components/abilities';
 import { AbilityDisclaimer } from '@/components/ability-disclaimer';
 
@@ -140,13 +140,13 @@ export default function Home() {
       setPendingGameSettings({ p1: player1Name, p2: player2Name, mode });
       setShowAbilityDisclaimer(true);
     } else {
-      setPlayerNames(player1Name, player2Name, mode);
+      setPlayerNames(player1Name, player2Name, mode, null);
     }
   };
 
-  const handleDisclaimerProceed = () => {
+  const handleDisclaimerProceed = (abilityConfig: AbilityConfig) => {
     if (pendingGameSettings) {
-      setPlayerNames(pendingGameSettings.p1, pendingGameSettings.p2, pendingGameSettings.mode);
+      setPlayerNames(pendingGameSettings.p1, pendingGameSettings.p2, pendingGameSettings.mode, abilityConfig);
       setPendingGameSettings(null);
     }
     setShowAbilityDisclaimer(false);

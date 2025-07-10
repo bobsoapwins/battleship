@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useState } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,44 +12,79 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import type { AbilityConfig, AbilityKey } from '@/lib/game';
 
 interface AbilityDisclaimerProps {
   open: boolean;
-  onProceed: () => void;
+  onProceed: (config: AbilityConfig) => void;
   onBack: () => void;
 }
 
+const initialConfig: AbilityConfig = {
+  sonar: true,
+  tomahawk: true,
+  mine: true,
+};
+
+const abilityDetails: Record<AbilityKey, { title: string, description: string }> = {
+    sonar: {
+        title: "Sonar Scan",
+        description: "Scan a 3x3 area to reveal enemy ships.",
+    },
+    tomahawk: {
+        title: "Tomahawk Strike",
+        description: "Launch a strike on a 3x3 area, hitting all cells.",
+    },
+    mine: {
+        title: "Defensive Mines",
+        description: "Place mines that detonate when an enemy fires on them.",
+    }
+}
+
 export function AbilityDisclaimer({ open, onProceed, onBack }: AbilityDisclaimerProps) {
+  const [abilityConfig, setAbilityConfig] = useState<AbilityConfig>(initialConfig);
+
+  const handleToggle = (ability: AbilityKey) => {
+    setAbilityConfig(prev => ({ ...prev, [ability]: !prev[ability] }));
+  };
+
+  const handleProceed = () => {
+    onProceed(abilityConfig);
+  }
+
   return (
     <AlertDialog open={open}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle className="font-headline text-2xl">A small disclaimer</AlertDialogTitle>
+          <AlertDialogTitle className="font-headline text-2xl">Configure Abilities</AlertDialogTitle>
           <AlertDialogDescription asChild>
-            <div className="text-base text-left pt-2 space-y-2">
+            <div className="text-base text-left pt-2 space-y-4">
               <p>
-                This game mode introduces special abilities. Each player gets a limited number of uses per ability.
+                Enable or disable abilities for this match. Each player gets a limited number of uses per enabled ability.
               </p>
-              <ul className="list-disc list-inside space-y-1">
-                <li>
-                  <strong>Sonar:</strong> Scan a 3x3 area to reveal enemy ships for one turn.
-                </li>
-                <li>
-                  <strong>Tomahawk:</strong> Launch a strike on a 3x3 area, hitting all cells simultaneously.
-                </li>
-                <li>
-                  <strong>Mines:</strong> Place defensive mines on your grid during setup. If an enemy fires on a mined cell, it detonates and damages their own fleet in a 3x3 area.
-                </li>
-              </ul>
-              <p>
-                Use your abilities wisely to gain the upper hand!
-              </p>
+              <div className="space-y-4">
+                {(Object.keys(abilityDetails) as AbilityKey[]).map((key) => (
+                    <div key={key} className="flex items-center space-x-4 p-3 bg-secondary/50 rounded-lg">
+                        <Switch
+                            id={key}
+                            checked={abilityConfig[key]}
+                            onCheckedChange={() => handleToggle(key)}
+                        />
+                        <Label htmlFor={key} className="flex-1 cursor-pointer">
+                            <p className="font-medium">{abilityDetails[key].title}</p>
+                            <p className="text-sm text-muted-foreground font-normal">{abilityDetails[key].description}</p>
+                        </Label>
+                    </div>
+                ))}
+              </div>
             </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onBack}>Wait, nevermind</AlertDialogCancel>
-          <AlertDialogAction onClick={onProceed}>Proceed</AlertDialogAction>
+          <AlertDialogAction onClick={handleProceed}>Proceed</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

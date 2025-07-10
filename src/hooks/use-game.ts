@@ -14,6 +14,7 @@ import type {
   AbilitiesState,
   Board,
   Orientation,
+  AbilityConfig,
 } from '@/lib/game';
 import {
   SHIP_TYPES,
@@ -28,28 +29,29 @@ const initialStats = (): PlayerStats => ({
     misses: 0,
 });
 
-const initialAbilities = (): AbilitiesState => ({
-  sonar: { uses: 2, cooldown: 0 },
-  tomahawk: { uses: 1, cooldown: 0 },
-  mine: { uses: 2, cooldown: 0 },
-  submarineTorpedo: { uses: 1, cooldown: 0},
+const initialAbilities = (config?: AbilityConfig | null): AbilitiesState => ({
+  sonar: { uses: config?.sonar ? 2 : 0, cooldown: 0, enabled: !!config?.sonar },
+  tomahawk: { uses: config?.tomahawk ? 1 : 0, cooldown: 0, enabled: !!config?.tomahawk },
+  mine: { uses: config?.mine ? 2 : 0, cooldown: 0, enabled: !!config?.mine },
+  submarineTorpedo: { uses: 1, cooldown: 0, enabled: false }, // Not configurable for now
 });
 
-const initialPlayer = (id: 1 | 2): Player => ({
+
+const initialPlayer = (id: 1 | 2, abilityConfig?: AbilityConfig | null): Player => ({
   id,
   name: `Player ${id}`,
   board: createEmptyBoard(),
   ships: [],
   stats: initialStats(),
-  abilities: initialAbilities(),
+  abilities: initialAbilities(abilityConfig),
   mines: [],
   scannedArea: [],
 });
 
-const getInitialState = (): GameState => ({
+const getInitialState = (abilityConfig?: AbilityConfig | null): GameState => ({
   phase: 'setup',
   gameMode: 'classic',
-  players: [initialPlayer(1), initialPlayer(2)],
+  players: [initialPlayer(1, abilityConfig), initialPlayer(2, abilityConfig)],
   currentPlayerId: 1,
   winner: null,
   message: 'Welcome! Set player names to begin.',
@@ -70,23 +72,25 @@ const getInitialState = (): GameState => ({
 });
 
 export const useGame = () => {
-  const [gameState, setGameState] = useState<GameState>(getInitialState);
+  const [gameState, setGameState] = useState<GameState>(getInitialState());
 
   const resetGame = useCallback(() => {
     setGameState(getInitialState());
   }, []);
 
-  const setPlayerNames = useCallback((player1Name: string, player2Name: string, gameMode: GameMode) => {
+  const setPlayerNames = useCallback((player1Name: string, player2Name: string, gameMode: GameMode, abilityConfig: AbilityConfig | null) => {
     setGameState(prev => {
         if (prev.phase !== 'setup') return prev;
+        
+        const state = getInitialState(abilityConfig);
 
         const newPlayers: [Player, Player] = [
-            {...initialPlayer(1), name: player1Name },
-            {...initialPlayer(2), name: player2Name }
+            {...initialPlayer(1, abilityConfig), name: player1Name },
+            {...initialPlayer(2, abilityConfig), name: player2Name }
         ];
 
         return {
-            ...getInitialState(),
+            ...state,
             players: newPlayers,
             phase: 'placement',
             gameMode: gameMode,
@@ -294,6 +298,11 @@ export const useGame = () => {
             if (shotsRemaining === 0) shotsRemaining = 1; // Failsafe
         }
         
+        // Clear previous player's scan, if we decide we want temporary scans
+        const newPlayers = [...currentGameState.players];
+        // newPlayers[currentGameState.currentPlayerId - 1] = { ...newPlayers[currentGameState.currentPlayerId - 1], scannedArea: [] };
+
+
         return {
             ...currentGameState,
             isTransitioning: false,
@@ -301,6 +310,7 @@ export const useGame = () => {
             currentPlayerId: nextPlayerId,
             shotsRemaining,
             activeAbility: null,
+            players: newPlayers as [Player, Player],
             message: `${nextPlayer.name}, your turn. ${currentGameState.gameMode === 'salvo' ? `(${shotsRemaining} shots remaining)`: ''}`
         }
     });
@@ -401,8 +411,8 @@ export const useGame = () => {
         let shotResults: Point[] = [];
         let currentOpponent = { ...newPlayers[opponentId - 1] };
         
-        let newCurrentPlayer = {...currentPlayer, abilities: {...currentPlayer.abilities, [activeAbility]: { ...currentPlayer.abilities[activeAbility], uses: currentPlayer.abilities[activeAbility]!.uses - 1}}};
-        newPlayers[currentPlayerId-1] = newCurrentPlayer;
+        let newCurrentPlayer = {...currentPlayer, abilities: {...currentPlayer.abilities, [activeAbility]: { ...currentPlayer.abilities[activeAbility]!, uses: currentPlayer.abilities[activeAbility]!.uses - 1}}};
+        
 
         if (activeAbility === 'sonar') {
           const scannedArea: Point[] = [];
@@ -457,6 +467,7 @@ export const useGame = () => {
             }
         }
 
+        newPlayers[currentPlayerId-1] = newCurrentPlayer;
 
         const allShipsSunk = newPlayers[opponentId - 1].ships.every(ship => ship.sunk);
         if (allShipsSunk) {

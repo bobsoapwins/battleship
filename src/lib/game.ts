@@ -16,7 +16,10 @@ export type ShipType = (typeof SHIP_TYPES)[number];
 export type ShipName = ShipType['name'];
 export type Orientation = 'horizontal' | 'vertical';
 export type GameMode = 'classic' | 'salvo' | 'nuclear' | 'ability';
-export type ActiveAbility = 'sonar' | 'tomahawk' | 'mine' | 'submarineTorpedo' | null;
+export type AbilityKey = 'sonar' | 'tomahawk' | 'mine';
+export type ActiveAbility = AbilityKey | 'submarineTorpedo' | null;
+
+export type AbilityConfig = Record<AbilityKey, boolean>;
 
 export interface Ship {
   name: ShipName;
@@ -37,11 +40,17 @@ export type PlayerStats = {
     misses: number;
 }
 
+export type AbilityState = { 
+  uses: number; 
+  cooldown: number; 
+  enabled: boolean; 
+};
+
 export type AbilitiesState = {
-  sonar: { uses: number; cooldown: number };
-  tomahawk: { uses: number; cooldown: number };
-  mine: { uses: number; cooldown: number };
-  submarineTorpedo: { uses: number; cooldown: number };
+  sonar: AbilityState;
+  tomahawk: AbilityState;
+  mine: AbilityState;
+  submarineTorpedo: AbilityState;
 };
 
 export type Player = {
