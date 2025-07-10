@@ -18,6 +18,7 @@ export const Abilities = ({ player, onToggleAbility, activeAbility, isPlacement 
     const { abilities } = player;
 
     if (isPlacement) {
+        const mineAbility = abilities.mine;
         return (
             <Card>
                 <CardHeader>
@@ -28,10 +29,10 @@ export const Abilities = ({ player, onToggleAbility, activeAbility, isPlacement 
                     <Button 
                         onClick={() => onToggleAbility('mine')} 
                         variant={activeAbility === 'mine' ? 'default' : 'outline'}
-                        disabled={abilities.mine.uses <= 0}
+                        disabled={!mineAbility.enabled || mineAbility.uses <= 0}
                     >
                         <Bomb className="mr-2" />
-                        Place Mine ({abilities.mine.uses} left)
+                        Place Mine ({mineAbility.enabled ? `${mineAbility.uses} left` : 'Disabled'})
                     </Button>
                 </CardContent>
             </Card>
