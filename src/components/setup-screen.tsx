@@ -92,6 +92,13 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
     );
   };
 
+  const handleNext = () => {
+    if (currentStep < 3) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+
   return (
     <>
         <Card className="w-full max-w-lg">
@@ -102,7 +109,7 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <Accordion type="single" value={`item-${currentStep}`} onValueChange={() => {}} className="w-full">
+                <Accordion type="single" value={`item-${currentStep}`} onValueChange={(value) => setCurrentStep(parseInt(value.split('-')[1]))} className="w-full">
                   <AccordionItem value="item-1">
                     <AccordionTrigger className="text-lg font-headline">Step 1: Game Type</AccordionTrigger>
                     <AccordionContent>
@@ -124,9 +131,6 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                             </Label>
                         </RadioGroup>
                       </div>
-                       <Button onClick={() => setCurrentStep(2)} className="w-full mt-6">
-                            Next
-                        </Button>
                     </AccordionContent>
                   </AccordionItem>
 
@@ -154,9 +158,6 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                               />
                           </div>
                       </div>
-                       <Button onClick={() => setCurrentStep(3)} className="w-full mt-6">
-                            Next
-                        </Button>
                     </AccordionContent>
                   </AccordionItem>
 
@@ -195,12 +196,20 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                               </Label>
                           </RadioGroup>
                       </div>
-                       <Button onClick={handleStart} className="w-full mt-6" size="lg">
-                            Start Game
-                        </Button>
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
+                <div className="w-full mt-6">
+                    {currentStep < 3 ? (
+                        <Button onClick={handleNext} className="w-full" size="lg">
+                            Next
+                        </Button>
+                    ) : (
+                        <Button onClick={handleStart} className="w-full" size="lg">
+                            Start Game
+                        </Button>
+                    )}
+                </div>
             </CardContent>
         </Card>
 
