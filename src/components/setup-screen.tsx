@@ -116,9 +116,9 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <Accordion type="single" value={`item-${currentStep}`} onValueChange={(value) => setCurrentStep(parseInt(value.split('-')[1]))} className="w-full">
+                <Accordion type="single" value={`item-${currentStep}`} className="w-full">
                   <AccordionItem value="item-1">
-                    <AccordionTrigger className="text-lg font-headline hover:no-underline">Step 1: Game Type</AccordionTrigger>
+                    <AccordionTrigger className="text-lg font-headline">Step 1: Game Type</AccordionTrigger>
                     <AccordionContent>
                       <div className="pt-2">
                         <RadioGroup value={gameType} onValueChange={(v) => setGameType(v as GameType)} className="gap-4">
@@ -141,8 +141,8 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                     </AccordionContent>
                   </AccordionItem>
 
-                  <AccordionItem value="item-2" disabled={currentStep < 2}>
-                    <AccordionTrigger className="text-lg font-headline hover:no-underline">Step 2: Player Names</AccordionTrigger>
+                  <AccordionItem value="item-2">
+                    <AccordionTrigger className="text-lg font-headline">Step 2: Player Names</AccordionTrigger>
                     <AccordionContent>
                       <div className="grid gap-4 pt-2">
                           <div className="space-y-2">
@@ -168,8 +168,8 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                     </AccordionContent>
                   </AccordionItem>
 
-                  <AccordionItem value="item-3" disabled={currentStep < 3}>
-                    <AccordionTrigger className="text-lg font-headline hover:no-underline">Step 3: Game Mode</AccordionTrigger>
+                  <AccordionItem value="item-3">
+                    <AccordionTrigger className="text-lg font-headline">Step 3: Game Mode</AccordionTrigger>
                     <AccordionContent>
                       <div className="pt-2">
                           <RadioGroup value={gameMode} onValueChange={handleGameModeChange} className="gap-2">
