@@ -143,7 +143,7 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                                 <RadioGroupItem value="ability" id="r4" />
                                 <Label htmlFor="r4" className="font-normal">
                                     <span className="font-medium">Ability</span>
-                                    <p className="text-xs text-muted-foreground">Use special abilities like Sonar Scan.</p>
+                                    <p className="text-xs text-muted-foreground">Use special abilities to destroy your opponent</p>
                                 </Label>
                             </div>
                         </RadioGroup>
