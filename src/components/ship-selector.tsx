@@ -51,10 +51,7 @@ export const ShipSelector: FC<ShipSelectorProps> = ({
               <p className="text-sm text-muted-foreground">Size: {shipToPlace.size}</p>
               <div className="flex justify-center items-center gap-2 pt-2">
                 <div
-                  className={cn('flex bg-primary/40 rounded', {
-                    'flex-row gap-1 p-1': orientation === 'horizontal',
-                    'flex-col gap-1 p-1': orientation === 'vertical',
-                  })}
+                  className={'flex flex-row gap-1 p-1 bg-primary/40 rounded'}
                 >
                   {Array.from({ length: shipToPlace.size }).map((_, i) => (
                     <div key={i} className="w-6 h-6 bg-primary rounded-sm" />
