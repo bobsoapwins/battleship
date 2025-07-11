@@ -44,7 +44,7 @@ export const ShipSelector: FC<ShipSelectorProps> = ({
           </div>
         </div>
 
-        <div className="p-4 bg-secondary rounded-lg text-center space-y-2 min-h-[116px]">
+        <div className="p-4 bg-secondary rounded-lg text-center space-y-2 min-h-[116px] flex flex-col justify-center items-center">
           {!placementComplete && shipToPlace && (
             <>
               <p className="font-bold text-lg">{shipToPlace.name}</p>
