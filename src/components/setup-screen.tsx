@@ -22,6 +22,7 @@ import {
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { AbilityDisclaimer } from './ability-disclaimer';
 import { cn } from '@/lib/utils';
+import { CheckCircle2, Circle, Pencil } from 'lucide-react';
 
 type GameType = 'human' | 'ai';
 interface SetupScreenProps {
@@ -106,6 +107,15 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
       }
   }
 
+  const getStepIcon = (step: number) => {
+    if (step < currentStep) {
+        return <CheckCircle2 className="text-green-500" />;
+    }
+    if (step === currentStep) {
+        return <Pencil className="text-primary" />;
+    }
+    return <Circle className="text-muted-foreground" />;
+  }
 
   return (
     <>
@@ -119,7 +129,12 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
             <CardContent>
                 <Accordion type="single" value={`item-${currentStep}`} className="w-full">
                   <AccordionItem value="item-1">
-                    <AccordionTrigger className="text-lg font-headline cursor-default">Game Type</AccordionTrigger>
+                    <AccordionTrigger className="text-lg font-headline cursor-default">
+                        <div className="flex justify-between w-full items-center pr-2">
+                            <span>Game Type</span>
+                            {getStepIcon(1)}
+                        </div>
+                    </AccordionTrigger>
                     <AccordionContent>
                       <div className="pt-2">
                         <RadioGroup value={gameType} onValueChange={(v) => setGameType(v as GameType)} className="gap-4">
@@ -143,7 +158,12 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                   </AccordionItem>
 
                   <AccordionItem value="item-2">
-                    <AccordionTrigger className="text-lg font-headline cursor-default">Player Names</AccordionTrigger>
+                    <AccordionTrigger className="text-lg font-headline cursor-default">
+                         <div className="flex justify-between w-full items-center pr-2">
+                            <span>Player Names</span>
+                            {getStepIcon(2)}
+                        </div>
+                    </AccordionTrigger>
                     <AccordionContent>
                       <div className="grid gap-4 pt-2">
                           <div className="space-y-2">
@@ -170,7 +190,12 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                   </AccordionItem>
 
                   <AccordionItem value="item-3">
-                    <AccordionTrigger className="text-lg font-headline cursor-default">Game Mode</AccordionTrigger>
+                    <AccordionTrigger className="text-lg font-headline cursor-default">
+                         <div className="flex justify-between w-full items-center pr-2">
+                            <span>Game Mode</span>
+                            {getStepIcon(3)}
+                        </div>
+                    </AccordionTrigger>
                     <AccordionContent>
                       <div className="pt-2">
                           <RadioGroup value={gameMode} onValueChange={handleGameModeChange} className="gap-2">
