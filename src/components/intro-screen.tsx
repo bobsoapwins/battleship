@@ -9,7 +9,7 @@ interface IntroScreenProps {
   onComplete: () => void;
 }
 
-type AnimationPhase = 'idle' | 'northDunne' | 'black1' | 'neoGames' | 'black2' | 'battleship' | 'done';
+type AnimationPhase = 'idle' | 'northDunne' | 'black1' | 'neoGames' | 'black2' | 'battleship' | 'battleshipTransition' | 'done';
 
 const NorthDunneLogo = () => (
     <div className="w-32 h-32 relative mb-4 rounded-full overflow-hidden">
@@ -39,49 +39,61 @@ export const IntroScreen = ({ onComplete }: IntroScreenProps) => {
   const [phase, setPhase] = useState<AnimationPhase>('idle');
   
   useEffect(() => {
-    const sequence: (() => void)[] = [
-      () => setPhase('northDunne'), // Fade in North Dunne
-      () => setPhase('black1'),     // Fade to black
-      () => setPhase('neoGames'),   // Fade in Neo Games
-      () => setPhase('black2'),     // Fade to black
-      () => setPhase('battleship'), // Fade in Battleship title
-      () => setPhase('done'),       // Fade out to black, then complete
+    const sequence: { phase: AnimationPhase, duration: number }[] = [
+      { phase: 'northDunne', duration: 2000 },
+      { phase: 'black1', duration: 1000 },
+      { phase: 'neoGames', duration: 2000 },
+      { phase: 'black2', duration: 1000 },
+      { phase: 'battleship', duration: 2000 },
+      { phase: 'battleshipTransition', duration: 2000 },
+      { phase: 'done', duration: 1000 },
     ];
 
     let currentIndex = 0;
-    const interval = setInterval(() => {
-      if (currentIndex < sequence.length) {
-        sequence[currentIndex]();
-        currentIndex++;
-      } else {
-        clearInterval(interval);
+    const runSequence = () => {
+      if (currentIndex >= sequence.length) {
+        return;
       }
-    }, 2000); 
+      
+      const current = sequence[currentIndex];
+      setPhase(current.phase);
 
-    return () => clearInterval(interval);
+      if (current.phase === 'done') {
+        setTimeout(onComplete, current.duration);
+      } else {
+        setTimeout(() => {
+          currentIndex++;
+          runSequence();
+        }, current.duration);
+      }
+    };
+    
+    runSequence();
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (phase === 'done') {
-        const timer = setTimeout(onComplete, 1000); // Wait for fade-out to complete
-        return () => clearTimeout(timer);
-    }
-  }, [phase, onComplete]);
-
 
   const isVisible = (p: AnimationPhase) => phase === p;
 
+  const bgClass = cn(
+    "min-h-screen w-full flex items-center justify-center overflow-hidden transition-all duration-1000",
+    phase === 'done' ? 'opacity-0' : 'opacity-100',
+    phase === 'battleshipTransition' ? 'bg-[#d5e4f9]' : 'bg-black'
+  );
+
+  const battleshipTextClass = cn(
+      'font-headline text-6xl tracking-widest uppercase transition-colors duration-1000',
+      phase === 'battleshipTransition' ? 'text-black' : 'text-neutral-200'
+  )
+
   return (
-    <div className={cn(
-        "bg-black text-neutral-200 min-h-screen w-full flex items-center justify-center overflow-hidden transition-opacity duration-1000",
-        phase === 'done' ? 'opacity-0' : 'opacity-100'
-    )}>
+    <div className={bgClass}>
       <div className={cn(
         'absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-1000',
         isVisible('northDunne') ? 'opacity-100' : 'opacity-0'
       )}>
         <NorthDunneLogo />
-        <p className="font-headline text-2xl tracking-wider">North Dunne</p>
+        <p className="font-headline text-2xl tracking-wider text-neutral-200">North Dunne</p>
         <p className="text-lg text-neutral-400">presents</p>
       </div>
 
@@ -91,14 +103,14 @@ export const IntroScreen = ({ onComplete }: IntroScreenProps) => {
       )}>
         <NeoGamesLogo />
         <p className="text-lg text-neutral-400">in association with</p>
-        <p className="font-headline text-2xl tracking-wider">Neo Games</p>
+        <p className="font-headline text-2xl tracking-wider text-neutral-200">Neo Games</p>
       </div>
 
       <div className={cn(
         'absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-1000',
-        isVisible('battleship') ? 'opacity-100' : 'opacity-0'
+        (isVisible('battleship') || isVisible('battleshipTransition')) ? 'opacity-100' : 'opacity-0'
       )}>
-        <h1 className="font-headline text-6xl tracking-widest uppercase">Battleship</h1>
+        <h1 className={battleshipTextClass}>Battleship</h1>
       </div>
     </div>
   );
