@@ -152,7 +152,7 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                               id="player1-name"
                               value={player1Name}
                               onChange={(e) => setPlayer1Name(e.target.value)}
-                              placeholder="Enter your name"
+                              placeholder="Enter player name"
                               />
                           </div>
                           <div className="space-y-2">
@@ -161,7 +161,7 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                               id="player2-name"
                               value={gameType === 'ai' ? 'AI Commander' : player2Name}
                               onChange={(e) => setPlayer2Name(e.target.value)}
-                              placeholder="Enter name for Player 2"
+                              placeholder="Enter player name"
                               disabled={gameType === 'ai'}
                               />
                           </div>
