@@ -78,12 +78,12 @@ export const IntroScreen = ({ onComplete }: IntroScreenProps) => {
   const bgClass = cn(
     "min-h-screen w-full flex items-center justify-center overflow-hidden transition-all duration-1000",
     phase === 'done' ? 'opacity-0' : 'opacity-100',
-    phase === 'battleshipTransition' ? 'bg-[#d5e4f9]' : 'bg-black'
+    (phase === 'battleshipTransition' || phase === 'done') ? 'bg-[#d5e4f9]' : 'bg-black'
   );
 
   const battleshipTextClass = cn(
       'font-headline text-6xl tracking-widest uppercase transition-colors duration-1000',
-      phase === 'battleshipTransition' ? 'text-black' : 'text-neutral-200'
+      phase === 'battleshipTransition' || phase === 'done' ? 'text-black' : 'text-neutral-200'
   )
 
   return (
@@ -108,7 +108,7 @@ export const IntroScreen = ({ onComplete }: IntroScreenProps) => {
 
       <div className={cn(
         'absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-1000',
-        (isVisible('battleship') || isVisible('battleshipTransition')) ? 'opacity-100' : 'opacity-0'
+        (isVisible('battleship') || isVisible('battleshipTransition') || phase === 'done') ? 'opacity-100' : 'opacity-0'
       )}>
         <h1 className={battleshipTextClass}>Battleship</h1>
       </div>
