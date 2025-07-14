@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
@@ -37,8 +37,16 @@ const NeoGamesLogo = () => (
 
 export const IntroScreen = ({ onComplete }: IntroScreenProps) => {
   const [phase, setPhase] = useState<AnimationPhase>('idle');
+  const audioRef = useRef<HTMLAudioElement>(null);
   
   useEffect(() => {
+    if (audioRef.current) {
+        audioRef.current.play().catch(error => {
+            // Autoplay was prevented.
+            console.log("Audio autoplay was prevented by the browser.");
+        });
+    }
+
     const sequence: { phase: AnimationPhase, duration: number }[] = [
       { phase: 'northDunne', duration: 2000 },
       { phase: 'black1', duration: 1000 },
@@ -88,6 +96,7 @@ export const IntroScreen = ({ onComplete }: IntroScreenProps) => {
 
   return (
     <div className={bgClass}>
+      <audio ref={audioRef} src="https://cdn.pixabay.com/audio/2022/08/23/audio_82131975cb.mp3" preload="auto" />
       <div className={cn(
         'absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-1000',
         isVisible('northDunne') ? 'opacity-100' : 'opacity-0'
