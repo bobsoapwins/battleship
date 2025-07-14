@@ -10,7 +10,7 @@ import { GameStatus } from '@/components/game-status';
 import { SHIP_TYPES } from '@/lib/game';
 import { cn } from '@/lib/utils';
 import { SetupScreen } from '@/components/setup-screen';
-import { BootupScreen } from '@/components/bootup-screen';
+import { LoadingScreen } from '@/components/loading-screen';
 import { ReadyUpScreen } from '@/components/ready-up-screen';
 import { Terminal } from '@/components/terminal';
 import type { GameAnalysisInput, GameAnalysisOutput } from '@/ai/flows/game-analysis-flow';
@@ -32,7 +32,7 @@ export default function Home() {
   const { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin, endPlacement, toggleAbility, resetPlayerBoard } = useGame();
   const { phase, players, currentPlayerId, message, placementState, isTransitioning, shotResult, readyStates, winner, gameMode, activeAbility, isAIGame, placementError } = gameState;
   const [isClient, setIsClient] = useState(false);
-  const [currentScreen, setCurrentScreen] = useState<'intro' | 'game'>('intro');
+  const [currentScreen, setCurrentScreen] = useState<'loading' | 'intro' | 'game'>('loading');
   const [revealOpponent, setRevealOpponent] = useState(false);
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const [insights, setInsights] = useState<GameAnalysisOutput | null>(null);
@@ -301,6 +301,10 @@ export default function Home() {
     }
   };
   
+  if (currentScreen === 'loading') {
+    return <LoadingScreen onComplete={() => setCurrentScreen('intro')} />;
+  }
+
   if (currentScreen === 'intro') {
     return <IntroScreen onComplete={() => setCurrentScreen('game')} />;
   }
