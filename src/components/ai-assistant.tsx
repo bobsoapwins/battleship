@@ -69,7 +69,7 @@ export function AIAssistant({ open, onOpenChange }: AIAssistantProps) {
       <SheetContent className="flex flex-col">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
-            AI Assistant
+            NeoAI
           </SheetTitle>
           <SheetDescription>
             Ask me anything about the game! (Press Tab to toggle)
