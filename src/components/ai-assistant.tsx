@@ -79,7 +79,7 @@ export function AIAssistant({ open, onOpenChange }: AIAssistantProps) {
               <div
                 key={index}
                 className={cn(
-                  'flex items-start gap-3',
+                  'flex items-start gap-3 animate-message-in',
                   msg.role === 'user' ? 'justify-end' : 'justify-start'
                 )}
               >
@@ -96,7 +96,7 @@ export function AIAssistant({ open, onOpenChange }: AIAssistantProps) {
               </div>
             ))}
             {isLoading && (
-              <div className="flex items-start gap-3 justify-start">
+              <div className="flex items-start gap-3 justify-start animate-message-in">
                   <div className="bg-secondary p-3 rounded-lg">
                     <Loader2 className="w-5 h-5 animate-spin" />
                   </div>
