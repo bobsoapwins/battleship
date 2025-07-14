@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { ArrowRight, Loader2 } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useGame } from '@/hooks/use-game';
 import { chatWithAssistant } from '@/ai/flows/assistant-flow';
 import type { Message } from '@/lib/game';
@@ -96,9 +96,11 @@ export function AIAssistant({ open, onOpenChange }: AIAssistantProps) {
               </div>
             ))}
             {isLoading && (
-              <div className="flex items-start gap-3 justify-start animate-message-in">
-                  <div className="bg-secondary p-3 rounded-lg">
-                    <Loader2 className="w-5 h-5 animate-spin" />
+              <div className="flex items-center gap-3 justify-start animate-message-in">
+                  <div className="bg-secondary p-3 rounded-lg flex items-center gap-1.5">
+                    <div className="h-2 w-2 rounded-full bg-muted-foreground animate-pulse-dot" style={{ animationDelay: '0s' }}/>
+                    <div className="h-2 w-2 rounded-full bg-muted-foreground animate-pulse-dot" style={{ animationDelay: '0.2s' }}/>
+                    <div className="h-2 w-2 rounded-full bg-muted-foreground animate-pulse-dot" style={{ animationDelay: '0.4s' }}/>
                   </div>
               </div>
             )}
