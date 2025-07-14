@@ -45,7 +45,7 @@ const abilityDetails: Record<AbilityKey, { title: string, description: string }>
     },
     submarineTorpedo: {
         title: "Submarine Torpedo",
-        description: "Launch a torpedo from your Submarine, hitting an entire row or column. Requires the Submarine to be afloat.",
+        description: "Fire a torpedo from your Submarine to hit an entire row or column.",
     }
 }
 
