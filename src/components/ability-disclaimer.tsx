@@ -60,6 +60,8 @@ export function AbilityDisclaimer({ open, onProceed, onBack }: AbilityDisclaimer
     onProceed(abilityConfig);
   }
 
+  const isProceedDisabled = Object.values(abilityConfig).every(v => v === false);
+
   return (
     <AlertDialog open={open} onOpenChange={(isOpen) => !isOpen && onBack()}>
       <AlertDialogContent>
@@ -88,12 +90,17 @@ export function AbilityDisclaimer({ open, onProceed, onBack }: AbilityDisclaimer
                     )
                 })}
               </div>
+               {isProceedDisabled && (
+                <p className="text-sm text-center text-destructive font-medium pt-2">
+                  You must select at least one ability to proceed.
+                </p>
+              )}
             </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onBack}>Wait, nevermind</AlertDialogCancel>
-          <AlertDialogAction onClick={handleProceed}>Proceed</AlertDialogAction>
+          <AlertDialogAction onClick={handleProceed} disabled={isProceedDisabled}>Proceed</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
