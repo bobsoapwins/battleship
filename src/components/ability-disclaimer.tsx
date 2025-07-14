@@ -90,17 +90,21 @@ export function AbilityDisclaimer({ open, onProceed, onBack }: AbilityDisclaimer
                     )
                 })}
               </div>
-               {isProceedDisabled && (
-                <p className="text-sm text-center text-destructive font-medium pt-2">
-                  You must select at least one ability to proceed.
-                </p>
-              )}
             </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={onBack}>Wait, nevermind</AlertDialogCancel>
-          <AlertDialogAction onClick={handleProceed} disabled={isProceedDisabled}>Proceed</AlertDialogAction>
+        <AlertDialogFooter className="sm:justify-between items-center">
+          <div className="flex-1 min-w-0">
+             {isProceedDisabled && (
+              <p className="text-sm text-left text-destructive font-medium transition-opacity">
+                You must select at least one ability to proceed.
+              </p>
+            )}
+          </div>
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
+            <AlertDialogCancel onClick={onBack}>Wait, nevermind</AlertDialogCancel>
+            <AlertDialogAction onClick={handleProceed} disabled={isProceedDisabled}>Proceed</AlertDialogAction>
+          </div>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
