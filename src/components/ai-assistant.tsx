@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Send, Loader2 } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { useGame } from '@/hooks/use-game';
 import { chatWithAssistant } from '@/ai/flows/assistant-flow';
 import type { Message } from '@/lib/game';
@@ -12,7 +12,6 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetDescription,
   SheetFooter
 } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
@@ -71,9 +70,6 @@ export function AIAssistant({ open, onOpenChange }: AIAssistantProps) {
           <SheetTitle className="flex items-center gap-2">
             Neo Assistant
           </SheetTitle>
-          <SheetDescription>
-            Ask me anything about the game! (Press Tab to toggle)
-          </SheetDescription>
         </SheetHeader>
         <ScrollArea className="flex-1 my-4 pr-4" ref={scrollAreaRef}>
           <div className="space-y-4">
@@ -116,7 +112,7 @@ export function AIAssistant({ open, onOpenChange }: AIAssistantProps) {
               disabled={isLoading}
             />
             <Button onClick={handleSend} disabled={isLoading || !input.trim()}>
-              <Send className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
         </SheetFooter>
