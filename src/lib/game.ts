@@ -78,6 +78,16 @@ export interface PlacementState {
     placementComplete: boolean;
 }
 
+export type Message = {
+    role: 'user' | 'model';
+    content: string;
+}
+
+export type AssistantState = {
+    history: Message[];
+    isLoading: boolean;
+}
+
 export interface GameState {
   phase: GamePhase;
   gameMode: GameMode;
@@ -93,6 +103,7 @@ export interface GameState {
   shotsRemaining: number;
   activeAbility: ActiveAbility;
   isAIGame: boolean;
+  assistantState: AssistantState;
 }
 
 export const createEmptyBoard = (): Board =>

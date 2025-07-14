@@ -15,6 +15,8 @@ import type {
   Board,
   Orientation,
   AbilityConfig,
+  AssistantState,
+  Message,
 } from '@/lib/game';
 import {
   SHIP_TYPES,
@@ -36,6 +38,10 @@ const initialAbilities = (config?: AbilityConfig | null): AbilitiesState => ({
   submarineTorpedo: { uses: config?.submarineTorpedo ? 1 : 0, cooldown: 0, enabled: !!config?.submarineTorpedo },
 });
 
+const initialAssistantState = (): AssistantState => ({
+    history: [{ role: 'model', content: 'Hello! I am Neo, your tactical assistant. How can I help you win this battle?' }],
+    isLoading: false,
+});
 
 const initialPlayer = (id: 1 | 2, abilityConfig?: AbilityConfig | null): Player => ({
   id,
@@ -71,6 +77,7 @@ const getInitialState = (abilityConfig?: AbilityConfig | null): GameState => ({
   shotsRemaining: 1,
   activeAbility: null,
   isAIGame: false,
+  assistantState: initialAssistantState(),
 });
 
 const placeAIShips = (player: Player): Player => {
@@ -113,6 +120,26 @@ export const useGame = () => {
 
   const resetGame = useCallback(() => {
     setGameState(getInitialState());
+  }, []);
+
+  const setAssistantHistory = useCallback((history: Message[]) => {
+    setGameState(prev => ({
+        ...prev,
+        assistantState: {
+            ...prev.assistantState,
+            history,
+        }
+    }));
+  }, []);
+
+  const setAssistantIsLoading = useCallback((isLoading: boolean) => {
+      setGameState(prev => ({
+          ...prev,
+          assistantState: {
+              ...prev.assistantState,
+              isLoading,
+          }
+      }));
   }, []);
 
   const setPlayerNames = useCallback((player1Name: string, player2Name: string, gameMode: GameMode, abilityConfig: AbilityConfig | null, isAIGame: boolean) => {
@@ -722,5 +749,11 @@ export const useGame = () => {
     })
   }, []);
 
-  return { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin, endPlacement, toggleAbility, resetPlayerBoard };
+  const assistant = {
+    ...gameState.assistantState,
+    setHistory: setAssistantHistory,
+    setIsLoading: setAssistantIsLoading,
+  }
+
+  return { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin, endPlacement, toggleAbility, resetPlayerBoard, assistantState: assistant };
 };

@@ -20,6 +20,7 @@ import { AIInsights } from '@/components/ai-insights';
 import { IntroScreen } from '@/components/intro-screen';
 import type { GameMode, AbilityConfig } from '@/lib/game';
 import { Abilities } from '@/components/abilities';
+import { AIAssistant } from '@/components/ai-assistant';
 
 
 const GameBoard = dynamic(() => import('@/components/game-board').then(mod => mod.GameBoard), {
@@ -35,6 +36,7 @@ export default function Home() {
   const [currentScreen, setCurrentScreen] = useState<'loading' | 'intro' | 'game'>('loading');
   const [revealOpponent, setRevealOpponent] = useState(false);
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
+  const [isAssistantOpen, setIsAssistantOpen] = useState(false);
   const [insights, setInsights] = useState<GameAnalysisOutput | null>(null);
   const [isLoadingInsights, setIsLoadingInsights] = useState(false);
   const [gameVisible, setGameVisible] = useState(false);
@@ -115,6 +117,16 @@ export default function Home() {
   
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Allow Tab to work in inputs
+      if ((e.target as HTMLElement).tagName === 'INPUT' && e.key === 'Tab') {
+        return;
+      }
+
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        setIsAssistantOpen(prev => !prev);
+      }
+
       if (e.shiftKey && e.key === 'Tab') {
         if (currentScreen === 'intro') {
             e.preventDefault();
@@ -135,9 +147,8 @@ export default function Home() {
       }
 
       if (e.key === 'Escape') {
-          if (isTerminalOpen) {
-              setIsTerminalOpen(false);
-          }
+          if (isTerminalOpen) setIsTerminalOpen(false);
+          if (isAssistantOpen) setIsAssistantOpen(false);
       }
     };
 
@@ -145,7 +156,7 @@ export default function Home() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isTerminalOpen, currentScreen]);
+  }, [isTerminalOpen, isAssistantOpen, currentScreen]);
 
   const handleTerminalCommand = (command: string) => {
     if (command.toLowerCase() === '/cheat') {
@@ -324,29 +335,32 @@ export default function Home() {
   }
 
   return (
-    <main className={mainContentClass}>
-      <div className="w-full mb-8">
-        <GameStatus
-          phase={phase}
-          message={isAIThinking ? 'AI is thinking...' : message}
-          onReset={resetGame}
-          onStartNextPlacement={startNextPlacement}
-          isTransitioning={isTransitioning}
-          onConfirmShot={confirmShotAndSwitchTurn}
-          players={players}
-          winner={winner}
-          isAIGame={isAIGame}
-        />
-      </div>
-      <div className="w-full">
-        {renderContent()}
-      </div>
-       {isTerminalOpen && (
-        <Terminal
-          onCommand={handleTerminalCommand}
-          onClose={() => setIsTerminalOpen(false)}
-        />
-      )}
-    </main>
+    <>
+      <AIAssistant open={isAssistantOpen} onOpenChange={setIsAssistantOpen} />
+      <main className={mainContentClass}>
+        <div className="w-full mb-8">
+          <GameStatus
+            phase={phase}
+            message={isAIThinking ? 'AI is thinking...' : message}
+            onReset={resetGame}
+            onStartNextPlacement={startNextPlacement}
+            isTransitioning={isTransitioning}
+            onConfirmShot={confirmShotAndSwitchTurn}
+            players={players}
+            winner={winner}
+            isAIGame={isAIGame}
+          />
+        </div>
+        <div className="w-full">
+          {renderContent()}
+        </div>
+        {isTerminalOpen && (
+          <Terminal
+            onCommand={handleTerminalCommand}
+            onClose={() => setIsTerminalOpen(false)}
+          />
+        )}
+      </main>
+    </>
   );
 }
