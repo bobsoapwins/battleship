@@ -9,7 +9,8 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import type { GameState, Player } from '@/lib/game';
+import type { GameState, Player, Message } from '@/lib/game';
+
 
 const MessageSchema = z.object({
   role: z.enum(['user', 'model']),
@@ -24,11 +25,10 @@ const InternalAssistantInputSchema = z.object({
 });
 
 // The input schema for the exported function, which takes the raw game state.
-const AssistantInputSchema = z.object({
-  gameState: z.any().describe("The entire current game state object. This provides the context for the assistant's response."),
-  history: z.array(MessageSchema).describe("The history of the conversation so far."),
-});
-export type AssistantInput = z.infer<typeof AssistantInputSchema>;
+export type AssistantInput = {
+  gameState: GameState;
+  history: Message[];
+};
 
 export type AssistantOutput = string;
 
@@ -48,9 +48,9 @@ const prompt = ai.definePrompt({
   input: { schema: InternalAssistantInputSchema },
   output: { format: 'text' },
   prompt: `You are Neo, a friendly and helpful AI assistant for a game of Battleship.
-Your goal is to answer the user's questions and provide helpful, concise advice.
-NEVER reveal the locations of the opponent's ships. You can see the whole game state, but you must not cheat for the user.
-You can give strategic advice, like suggesting areas to search or commenting on their accuracy.
+Your goal is to provide engaging and helpful conversation. You can answer questions about the game rules, comment on the current state of the game, or just chat with the user.
+**Crucially, you must NEVER reveal the locations of the opponent's ships.** You have access to the entire game state for context, but you must not use this information to cheat for the user.
+You can offer encouragement, comment on impressive hits or unfortunate misses, and discuss the player's stats, but avoid giving direct strategic commands like "fire at C5".
 
 Current Game State:
 - Phase: {{gameState.phase}}
@@ -77,10 +77,10 @@ Based on the game state and conversation history, provide a helpful and friendly
 const assistantFlow = ai.defineFlow(
   {
     name: 'assistantFlow',
-    inputSchema: AssistantInputSchema,
+    inputSchema: z.any(),
     outputSchema: z.string(),
   },
-  async (input) => {
+  async (input: AssistantInput) => {
     if (input.history.length === 0 || input.history[input.history.length - 1].role !== 'user') {
       return "Hello! How can I help you with the game?";
     }
