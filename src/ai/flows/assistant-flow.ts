@@ -52,7 +52,7 @@ Current Game State:
 
 Player Details:
 {{#each gameState.players as |player|}}
-- {{formatPlayerForPrompt player}}
+- {{{formatPlayerForPrompt player}}}
 {{/each}}
 
 Conversation History:
@@ -62,7 +62,6 @@ Conversation History:
 
 Based on the game state and conversation history, provide a helpful and friendly response to the latest user message.`,
   
-  // Custom Handlebars helper to subtract 1 for array indexing
   helpers: {
     subtract: (a: number, b: number) => a - b,
     formatPlayerForPrompt: formatPlayerForPrompt
