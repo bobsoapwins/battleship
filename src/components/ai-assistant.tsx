@@ -25,8 +25,8 @@ interface AIAssistantProps {
 }
 
 export function AIAssistant({ open, onOpenChange }: AIAssistantProps) {
-  const { gameState, assistantState, setAssistantHistory, setAssistantIsLoading } = useGame();
-  const { history, isLoading } = assistantState;
+  const { gameState, assistantState } = useGame();
+  const { history, isLoading, setHistory, setIsLoading } = assistantState;
   const [input, setInput] = useState('');
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -35,9 +35,9 @@ export function AIAssistant({ open, onOpenChange }: AIAssistantProps) {
 
     const newUserMessage: Message = { role: 'user', content: input.trim() };
     const newHistory = [...history, newUserMessage];
-    setAssistantHistory(newHistory);
+    setHistory(newHistory);
     setInput('');
-    setAssistantIsLoading(true);
+    setIsLoading(true);
 
     try {
       const response = await chatWithAssistant({
@@ -45,13 +45,13 @@ export function AIAssistant({ open, onOpenChange }: AIAssistantProps) {
         history: newHistory,
       });
       const newModelMessage: Message = { role: 'model', content: response };
-      setAssistantHistory([...newHistory, newModelMessage]);
+      setHistory([...newHistory, newModelMessage]);
     } catch (error) {
       console.error('AI Assistant Error:', error);
       const errorMessage: Message = { role: 'model', content: "Sorry, I encountered an error. Please try again." };
-      setAssistantHistory([...newHistory, errorMessage]);
+      setHistory([...newHistory, errorMessage]);
     } finally {
-      setAssistantIsLoading(false);
+      setIsLoading(false);
     }
   };
 

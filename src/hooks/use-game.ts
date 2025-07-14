@@ -753,7 +753,7 @@ export const useGame = () => {
     ...gameState.assistantState,
     setHistory: setAssistantHistory,
     setIsLoading: setAssistantIsLoading,
-  }
+  };
 
   return { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin, endPlacement, toggleAbility, resetPlayerBoard, assistantState: assistant };
 };
