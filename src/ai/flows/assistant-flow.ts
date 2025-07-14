@@ -16,6 +16,14 @@ const MessageSchema = z.object({
   content: z.string(),
 });
 
+// The input schema for the prompt itself, after data has been processed.
+const InternalAssistantInputSchema = z.object({
+  gameState: z.any().describe("The entire current game state object."),
+  history: z.array(MessageSchema).describe("The history of the conversation so far."),
+  formattedPlayers: z.array(z.string()).describe("Pre-formatted strings describing each player's status.")
+});
+
+// The input schema for the exported function, which takes the raw game state.
 const AssistantInputSchema = z.object({
   gameState: z.any().describe("The entire current game state object. This provides the context for the assistant's response."),
   history: z.array(MessageSchema).describe("The history of the conversation so far."),
@@ -28,7 +36,7 @@ export async function chatWithAssistant(input: AssistantInput): Promise<Assistan
   return assistantFlow(input);
 }
 
-const formatPlayerForPrompt = (player: Player) => {
+const formatPlayerForPrompt = (player: Player): string => {
     return `Player ${player.id} (${player.name}):
 - Ships: ${player.ships.length} total, ${player.ships.filter(s => !s.sunk).length} remaining.
 - Stats: ${player.stats.hits} hits, ${player.stats.misses} misses.
@@ -37,7 +45,7 @@ const formatPlayerForPrompt = (player: Player) => {
 
 const prompt = ai.definePrompt({
   name: 'assistantPrompt',
-  input: { schema: AssistantInputSchema },
+  input: { schema: InternalAssistantInputSchema },
   output: { format: 'text' },
   prompt: `You are Neo, a friendly and helpful AI assistant for a game of Battleship.
 Your goal is to answer the user's questions and provide helpful, concise advice.
@@ -51,8 +59,8 @@ Current Game State:
 - Game Mode: {{gameState.gameMode}}
 
 Player Details:
-{{#each gameState.players as |player|}}
-- {{{formatPlayerForPrompt player}}}
+{{#each formattedPlayers as |playerString|}}
+- {{{playerString}}}
 {{/each}}
 
 Conversation History:
@@ -63,7 +71,6 @@ Conversation History:
 Based on the game state and conversation history, provide a helpful and friendly response to the latest user message.`,
   helpers: {
     subtract: (a: number, b: number) => a - b,
-    formatPlayerForPrompt: formatPlayerForPrompt
   }
 });
 
@@ -74,12 +81,18 @@ const assistantFlow = ai.defineFlow(
     outputSchema: z.string(),
   },
   async (input) => {
-    // Add a check to prevent responding to an empty prompt
     if (input.history.length === 0 || input.history[input.history.length - 1].role !== 'user') {
       return "Hello! How can I help you with the game?";
     }
     
-    const { output } = await prompt(input);
+    // Pre-process the player data here
+    const formattedPlayers = input.gameState.players.map(formatPlayerForPrompt);
+
+    const { output } = await prompt({
+        ...input,
+        formattedPlayers,
+    });
+    
     return output || "I'm not sure how to respond to that. Try asking about game strategy or your stats!";
   }
 );
