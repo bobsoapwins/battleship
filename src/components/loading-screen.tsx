@@ -9,23 +9,41 @@ interface LoadingScreenProps {
   onComplete: () => void;
 }
 
+const loadingSequence = [
+  { progress: 25, delay: 500 },
+  { progress: 60, delay: 800 },
+  { progress: 90, delay: 600 },
+  { progress: 100, delay: 400 },
+];
+
 export const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setProgress(100);
+    let currentIndex = 0;
+
+    const runSequence = () => {
+      if (currentIndex >= loadingSequence.length) {
+        setTimeout(onComplete, 500); // Wait a bit after 100%
+        return;
+      }
+
+      const currentStep = loadingSequence[currentIndex];
+      setTimeout(() => {
+        setProgress(currentStep.progress);
+        currentIndex++;
+        runSequence();
+      }, currentStep.delay);
+    };
+    
+    // Start the sequence
+    const initialTimeout = setTimeout(() => {
+        setProgress(10);
+        runSequence();
     }, 100);
 
-    return () => clearTimeout(timer);
-  }, []);
-  
-  useEffect(() => {
-      if(progress === 100) {
-          const timer = setTimeout(() => onComplete(), 1000);
-          return () => clearTimeout(timer);
-      }
-  }, [progress, onComplete])
+    return () => clearTimeout(initialTimeout);
+  }, [onComplete]);
 
   return (
     <div className="fixed inset-0 bg-black flex items-end">
