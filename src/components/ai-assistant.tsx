@@ -12,7 +12,8 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetFooter
+  SheetFooter,
+  SheetDescription,
 } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -70,6 +71,7 @@ export function AIAssistant({ open, onOpenChange }: AIAssistantProps) {
           <SheetTitle className="flex items-center gap-2">
             Neo Assistant
           </SheetTitle>
+          <SheetDescription>Press TAB to close</SheetDescription>
         </SheetHeader>
         <ScrollArea className="flex-1 my-4 pr-4" ref={scrollAreaRef}>
           <div className="space-y-4">
