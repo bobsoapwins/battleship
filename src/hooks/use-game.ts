@@ -61,6 +61,7 @@ const getInitialState = (abilityConfig?: AbilityConfig | null): GameState => ({
     orientation: 'horizontal',
     placementComplete: false,
   },
+  placementError: null,
   isTransitioning: false,
   shotResult: null,
   readyStates: {
@@ -192,10 +193,10 @@ export const useGame = () => {
 
       if (prev.gameMode === 'ability' && prev.activeAbility === 'mine') {
           if(currentPlayer.board[y][x] !== 'empty') {
-            return { ...prev, message: 'Cannot place a mine on a ship.' };
+            return { ...prev, placementError: 'Cannot place a mine on a ship.' };
           }
           if (currentPlayer.mines.some(m => m.x === x && m.y === y)) {
-            return { ...prev, message: 'A mine is already here.' };
+            return { ...prev, placementError: 'A mine is already here.' };
           }
 
           const newBoard = currentPlayer.board.map(row => [...row]);
@@ -218,6 +219,7 @@ export const useGame = () => {
             ...prev,
             players: newPlayers,
             activeAbility: null,
+            placementError: null,
             message: `${currentPlayer.name}, place your fleet.`
           }
       }
@@ -226,7 +228,7 @@ export const useGame = () => {
       const shipType = SHIP_TYPES[shipIndex];
 
       if (!shipType || !canPlaceShip(currentPlayer.board, shipType.size, x, y, orientation)) {
-        return { ...prev, message: "Cannot place ship here. Try another location." };
+        return { ...prev, placementError: "Cannot place ship here. Try another location." };
       }
 
       const newBoard = currentPlayer.board.map((row) => [...row]);
@@ -265,6 +267,7 @@ export const useGame = () => {
           ...prev,
           players: newPlayers,
           placementState: { ...prev.placementState, shipIndex: nextShipIndex },
+          placementError: null,
           message: `${currentPlayer.name}, place your ${SHIP_TYPES[nextShipIndex].name}.`,
         };
       } else {
@@ -276,6 +279,7 @@ export const useGame = () => {
             shipIndex: nextShipIndex,
             placementComplete: true,
           },
+          placementError: null,
           message: `${newPlayer.name}'s fleet is ready.`,
         };
       }

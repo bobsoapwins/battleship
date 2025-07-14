@@ -30,7 +30,7 @@ const GameBoard = dynamic(() => import('@/components/game-board').then(mod => mo
 
 export default function Home() {
   const { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin, endPlacement, toggleAbility, resetPlayerBoard } = useGame();
-  const { phase, players, currentPlayerId, message, placementState, isTransitioning, shotResult, readyStates, winner, gameMode, activeAbility, isAIGame } = gameState;
+  const { phase, players, currentPlayerId, message, placementState, isTransitioning, shotResult, readyStates, winner, gameMode, activeAbility, isAIGame, placementError } = gameState;
   const [isClient, setIsClient] = useState(false);
   const [currentScreen, setCurrentScreen] = useState<'intro' | 'game'>('intro');
   const [revealOpponent, setRevealOpponent] = useState(false);
@@ -204,6 +204,11 @@ export default function Home() {
               orientation: placementState.orientation,
             }}
           />
+          <div className="text-center mt-4 h-6">
+            {placementError && (
+              <p className="text-destructive font-medium animate-pulse">{placementError}</p>
+            )}
+          </div>
         </div>
       </div>
     );

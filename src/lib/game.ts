@@ -86,6 +86,7 @@ export interface GameState {
   winner: Player | null;
   message: string;
   placementState: PlacementState;
+  placementError: string | null;
   isTransitioning: boolean;
   shotResult: Point | null | Point[];
   readyStates: ReadyStates;
