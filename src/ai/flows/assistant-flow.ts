@@ -61,7 +61,6 @@ Conversation History:
 {{/each}}
 
 Based on the game state and conversation history, provide a helpful and friendly response to the latest user message.`,
-  
   helpers: {
     subtract: (a: number, b: number) => a - b,
     formatPlayerForPrompt: formatPlayerForPrompt
