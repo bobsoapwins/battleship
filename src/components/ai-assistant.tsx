@@ -112,7 +112,7 @@ export function AIAssistant({ open, onOpenChange }: AIAssistantProps) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Ask Neo a question..."
+              placeholder="Ask anything..."
               disabled={isLoading}
             />
             <Button onClick={handleSend} disabled={isLoading || !input.trim()}>
