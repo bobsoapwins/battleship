@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Bot, Send, Loader2 } from 'lucide-react';
+import { Send, Loader2 } from 'lucide-react';
 import { useGame } from '@/hooks/use-game';
 import { chatWithAssistant } from '@/ai/flows/assistant-flow';
 import type { Message } from '@/lib/game';
@@ -69,7 +69,7 @@ export function AIAssistant({ open, onOpenChange }: AIAssistantProps) {
       <SheetContent className="flex flex-col">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
-            <Bot /> AI Assistant
+            AI Assistant
           </SheetTitle>
           <SheetDescription>
             Ask me anything about the game! (Press Tab to toggle)

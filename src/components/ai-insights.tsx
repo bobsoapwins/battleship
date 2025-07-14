@@ -1,10 +1,10 @@
+
 'use client';
 
 import type { GameAnalysisOutput } from '@/ai/flows/game-analysis-flow';
 import type { Player } from '@/lib/game';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Bot } from 'lucide-react';
 
 interface AIInsightsProps {
   players: [Player, Player];
@@ -46,7 +46,6 @@ export const AIInsights = ({
   return (
     <div className="w-full my-4">
       <h3 className="text-xl font-headline mb-4 flex items-center gap-2">
-        <Bot className="w-6 h-6" />
         NeoAI Insights
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
