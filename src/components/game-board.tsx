@@ -54,7 +54,7 @@ export const GameBoard: FC<GameBoardProps> = ({
   };
   
   const getPreviewCells = (): { points: Point[], isValid: boolean } | null => {
-    if (!placementPreview || !hoverPosition || disabled) return null;
+    if (!placementPreview || !hoverPosition || disabled || isPlacingMine) return null;
 
     const { shipToPlace, orientation } = placementPreview;
     if (!shipToPlace) return null;
