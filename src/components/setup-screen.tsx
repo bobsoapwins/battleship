@@ -58,6 +58,7 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
   const [selectedModeInfo, setSelectedModeInfo] = useState(gameModeDetails.classic);
   const [showAbilityDisclaimer, setShowAbilityDisclaimer] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const [highestStepReached, setHighestStepReached] = useState(0);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     draggable: false,
@@ -68,7 +69,9 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
   useEffect(() => {
     if (!emblaApi) return;
     const onSelect = (api: EmblaCarouselType) => {
-      setCurrentStep(api.selectedScrollSnap());
+      const selectedSnap = api.selectedScrollSnap();
+      setCurrentStep(selectedSnap);
+      setHighestStepReached(prev => Math.max(prev, selectedSnap));
     };
     emblaApi.on('select', onSelect);
     return () => { emblaApi.off('select', onSelect) };
@@ -121,7 +124,7 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
   
   const StepIndicator = ({ step, label }: { step: number; label: string }) => {
     const isActive = step === currentStep;
-    const isCompleted = step < currentStep;
+    const isCompleted = step < highestStepReached;
 
     return (
         <div className="flex items-center gap-2">
