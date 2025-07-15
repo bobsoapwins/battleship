@@ -243,7 +243,7 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                         </Button>
                     ) : (
                         <Button onClick={handleStart}>
-                            Start Game
+                            {gameMode === 'ability' ? 'Configure Abilities' : 'Start Game'}
                         </Button>
                     )}
                 </div>
