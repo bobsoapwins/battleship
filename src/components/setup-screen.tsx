@@ -11,16 +11,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import type { GameMode, AbilityConfig } from '@/lib/game';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { AbilityDisclaimer } from './ability-disclaimer';
 import { cn } from '@/lib/utils';
 import { CheckCircle2, Circle, Pencil } from 'lucide-react';
@@ -54,8 +44,6 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
   const [player2Name, setPlayer2Name] = useState('');
   const [gameMode, setGameMode] = useState<GameMode>('classic');
   const [gameType, setGameType] = useState<GameType>('human');
-  const [infoDialogOpen, setInfoDialogOpen] = useState(false);
-  const [selectedModeInfo, setSelectedModeInfo] = useState(gameModeDetails.classic);
   const [showAbilityDisclaimer, setShowAbilityDisclaimer] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [highestStepReached, setHighestStepReached] = useState(0);
@@ -84,26 +72,20 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
   };
   
   const handleStart = () => {
-    setHighestStepReached(steps.length); // Mark all steps as reached
+    setHighestStepReached(steps.length);
     if (gameMode === 'ability') {
       setShowAbilityDisclaimer(true);
     } else {
-        setSelectedModeInfo(gameModeDetails[gameMode]);
-        setInfoDialogOpen(true);
-    }
-  };
-
-  const proceedFromInfoDialog = () => {
-    setInfoDialogOpen(false);
-    const p2Name = gameType === 'ai' ? 'AI Commander' : player2Name.trim() || 'Player 2';
-    onGameStart(
+      const p2Name = gameType === 'ai' ? 'AI Commander' : player2Name.trim() || 'Player 2';
+      onGameStart(
         player1Name.trim() || 'Player 1',
         p2Name,
         gameMode,
         null,
         gameType === 'ai'
-    );
-  }
+      );
+    }
+  };
 
   const handleAbilityProceed = (abilityConfig: AbilityConfig) => {
     setShowAbilityDisclaimer(false);
@@ -238,21 +220,6 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                 </div>
             </CardContent>
         </Card>
-
-        <AlertDialog open={infoDialogOpen} onOpenChange={setInfoDialogOpen}>
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle className="font-headline text-2xl">{selectedModeInfo.title}</AlertDialogTitle>
-                    <AlertDialogDescription>
-                        {selectedModeInfo.description}
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>Change Gamemode</AlertDialogCancel>
-                    <AlertDialogAction onClick={proceedFromInfoDialog}>Proceed to Battle</AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
 
         <AbilityDisclaimer
           open={showAbilityDisclaimer}
