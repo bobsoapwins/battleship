@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Settings, Sun, Moon, Palette } from 'lucide-react';
+import { Settings, Palette } from 'lucide-react';
 
 type Theme = 'default' | 'dark' | 'deep-sea' | 'arctic' | 'volcanic';
 
@@ -22,6 +22,8 @@ const themeLabels: Record<Theme, string> = {
   arctic: 'Arctic',
   volcanic: 'Volcanic',
 };
+
+const allThemeClasses = ['dark', 'theme-deep-sea', 'theme-arctic', 'theme-volcanic'];
 
 export function ThemeSwitcher() {
   const [theme, setTheme] = useState<Theme>('default');
@@ -34,12 +36,18 @@ export function ThemeSwitcher() {
   }, []);
 
   useEffect(() => {
-    document.documentElement.classList.remove(...Object.keys(themeLabels).map(t => t === 'dark' ? 'dark' : `theme-${t}`));
+    const root = document.documentElement;
+    
+    // Remove all possible theme classes
+    root.classList.remove(...allThemeClasses);
+
+    // Add the class for the selected theme
     if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
+      root.classList.add('dark');
     } else if (theme !== 'default') {
-      document.documentElement.classList.add(`theme-${theme}`);
+      root.classList.add(`theme-${theme}`);
     }
+    
     localStorage.setItem('battleship-theme', theme);
   }, [theme]);
 
