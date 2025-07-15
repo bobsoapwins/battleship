@@ -116,6 +116,11 @@ export default {
             transform: 'scale(1)',
           }
         },
+        'pulse-and-settle': {
+            '0%': { transform: 'scale(1)', opacity: '1' },
+            '50%': { transform: 'scale(1.1)', opacity: '1' },
+            '100%': { transform: 'scale(1)', opacity: '0.7' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -124,6 +129,7 @@ export default {
         'message-in': 'message-in 0.3s ease-out',
         'pulse-dot': 'pulse-dot 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'carousel-in': 'carousel-in 0.5s ease-out forwards',
+        'pulse-and-settle': 'pulse-and-settle 4s ease-out forwards',
       },
     },
   },
