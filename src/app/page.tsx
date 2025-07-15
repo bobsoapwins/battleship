@@ -361,7 +361,7 @@ export default function Home() {
           />
         )}
       </main>
-      <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 animate-pulse-and-settle">
+      <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2">
           <span className="text-sm text-muted-foreground hidden sm:inline">AI Assistant</span>
           <div className="flex h-8 w-12 items-center justify-center rounded-md border bg-background/80 p-1 font-code text-sm shadow-md backdrop-blur-sm">
               TAB
