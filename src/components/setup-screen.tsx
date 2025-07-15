@@ -203,7 +203,7 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
                             <div className="pt-2">
                                 <RadioGroup value={gameMode} onValueChange={handleGameModeChange} className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                     {Object.entries(gameModeDetails).map(([key, { title, description }]) => (
-                                        <Label key={key} className="flex items-start space-x-3 p-3 border rounded-md has-[input:checked]:bg-secondary cursor-pointer transition-colors">
+                                        <Label key={key} className="flex items-start space-x-3 p-3 border rounded-md has-[input:checked]:bg-secondary cursor-pointer transition-colors h-full">
                                             <RadioGroupItem value={key} id={key} className="mt-1" />
                                             <div>
                                                 <span className="font-medium">{title}</span>
