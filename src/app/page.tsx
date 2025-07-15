@@ -21,6 +21,7 @@ import { IntroScreen } from '@/components/intro-screen';
 import type { GameMode, AbilityConfig } from '@/lib/game';
 import { Abilities } from '@/components/abilities';
 import { AIAssistant } from '@/components/ai-assistant';
+import { ThemeSwitcher } from '@/components/theme-switcher';
 
 
 const GameBoard = dynamic(() => import('@/components/game-board').then(mod => mod.GameBoard), {
@@ -362,6 +363,7 @@ export default function Home() {
         )}
       </main>
       <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2">
+          <ThemeSwitcher />
           <span className="text-sm text-muted-foreground hidden sm:inline">AI Assistant</span>
           <div className="flex h-8 w-12 items-center justify-center rounded-md border bg-background/80 p-1 font-code text-sm shadow-md backdrop-blur-sm">
               TAB
