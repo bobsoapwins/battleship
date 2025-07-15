@@ -66,6 +66,8 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
     align: 'start',
   });
 
+  const steps = ["Game Type", "Player Names", "Game Mode"];
+
   useEffect(() => {
     if (!emblaApi) return;
     const onSelect = (api: EmblaCarouselType) => {
@@ -82,6 +84,7 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
   };
   
   const handleStart = () => {
+    setHighestStepReached(steps.length); // Mark all steps as reached
     if (gameMode === 'ability') {
       setShowAbilityDisclaimer(true);
     } else {
@@ -133,8 +136,6 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
         </div>
     )
   }
-
-  const steps = ["Game Type", "Player Names", "Game Mode"];
 
   return (
     <>
