@@ -2,7 +2,9 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import type { EmblaCarouselType } from 'embla-carousel-react'
+import useEmblaCarousel from 'embla-carousel-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -19,7 +21,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { AbilityDisclaimer } from './ability-disclaimer';
 import { cn } from '@/lib/utils';
 import { CheckCircle2, Circle, Pencil } from 'lucide-react';
@@ -56,7 +57,22 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
   const [infoDialogOpen, setInfoDialogOpen] = useState(false);
   const [selectedModeInfo, setSelectedModeInfo] = useState(gameModeDetails.classic);
   const [showAbilityDisclaimer, setShowAbilityDisclaimer] = useState(false);
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(0);
+
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    draggable: false,
+    loop: false,
+    align: 'start',
+  });
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    const onSelect = (api: EmblaCarouselType) => {
+      setCurrentStep(api.selectedScrollSnap());
+    };
+    emblaApi.on('select', onSelect);
+    return () => { emblaApi.off('select', onSelect) };
+  }, [emblaApi]);
 
   const handleGameModeChange = (newMode: GameMode) => {
     setGameMode(newMode);
@@ -96,148 +112,117 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
   };
 
   const handleNext = () => {
-    if (currentStep < 3) {
-      setCurrentStep(currentStep + 1);
-    }
+    emblaApi?.scrollNext();
   };
 
   const handleBack = () => {
-      if (currentStep > 1) {
-          setCurrentStep(currentStep - 1);
-      }
+    emblaApi?.scrollPrev();
+  }
+  
+  const StepIndicator = ({ step, label }: { step: number; label: string }) => {
+    const isActive = step === currentStep;
+    const isCompleted = step < currentStep;
+
+    return (
+        <div className="flex items-center gap-2">
+            {isCompleted ? <CheckCircle2 className="text-green-500 w-5 h-5" /> : <div className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center", isActive ? "border-primary" : "border-muted", isCompleted ? "border-green-500" : "")}>{!isActive && !isCompleted && <div className="w-2 h-2 rounded-full bg-muted" />} {isActive && <div className="w-2 h-2 rounded-full bg-primary" />}</div>}
+            <span className={cn("font-medium", isActive ? "text-primary" : isCompleted ? "text-foreground" : "text-muted-foreground")}>{label}</span>
+        </div>
+    )
   }
 
-  const getStepIcon = (step: number) => {
-    if (step < currentStep) {
-        return <CheckCircle2 className="text-green-500" />;
-    }
-    if (step === currentStep) {
-        return <Pencil className="text-primary" />;
-    }
-    return <Circle className="text-muted-foreground" />;
-  }
+  const steps = ["Game Type", "Player Names", "Game Mode"];
 
   return (
     <>
-        <Card className="w-full max-w-lg">
+        <Card className="w-full max-w-2xl overflow-hidden">
             <CardHeader>
                 <CardTitle className="font-headline text-3xl text-center">Game Setup</CardTitle>
                 <CardDescription className="text-center">
                     Configure your game and prepare for battle.
                 </CardDescription>
             </CardHeader>
-            <CardContent>
-                <Accordion type="single" value={`item-${currentStep}`} className="w-full">
-                  <AccordionItem value="item-1">
-                    <AccordionTrigger className="text-lg font-headline cursor-default">
-                        <div className="flex justify-between w-full items-center pr-2">
-                            <span>Game Type</span>
-                            {getStepIcon(1)}
-                        </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="pt-2">
-                        <RadioGroup value={gameType} onValueChange={(v) => setGameType(v as GameType)} className="gap-4">
-                           <Label className="flex items-center space-x-3 p-4 border rounded-md has-[input:checked]:bg-secondary cursor-pointer">
-                                <RadioGroupItem value="human" id="g1" />
-                                <div>
-                                  <p className="font-medium">Player vs. Player</p>
-                                  <p className="text-sm text-muted-foreground">Two human players battle it out.</p>
-                                </div>
-                            </Label>
-                            <Label className="flex items-center space-x-3 p-4 border rounded-md has-[input:checked]:bg-secondary cursor-pointer">
-                                <RadioGroupItem value="ai" id="g2" />
-                                <div>
-                                  <p className="font-medium">Player vs. AI</p>
-                                  <p className="text-sm text-muted-foreground">Test your skills against an AI Commander.</p>
-                                </div>
-                            </Label>
-                        </RadioGroup>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
+            <CardContent className="px-1 md:px-6">
+                <div className="flex justify-center space-x-4 md:space-x-8 mb-6">
+                    {steps.map((label, index) => (
+                        <StepIndicator key={index} step={index} label={label} />
+                    ))}
+                </div>
 
-                  <AccordionItem value="item-2">
-                    <AccordionTrigger className="text-lg font-headline cursor-default">
-                         <div className="flex justify-between w-full items-center pr-2">
-                            <span>Player Names</span>
-                            {getStepIcon(2)}
+                <div className="overflow-hidden" ref={emblaRef}>
+                    <div className="flex">
+                        {/* Step 1: Game Type */}
+                        <div className="min-w-0 flex-[0_0_100%] p-1 animate-carousel-in">
+                           <div className="pt-2">
+                            <RadioGroup value={gameType} onValueChange={(v) => setGameType(v as GameType)} className="grid md:grid-cols-2 gap-4">
+                               <Label className="flex items-center space-x-3 p-4 border rounded-md has-[input:checked]:bg-secondary cursor-pointer transition-colors">
+                                    <RadioGroupItem value="human" id="g1" />
+                                    <div>
+                                      <p className="font-medium">Player vs. Player</p>
+                                      <p className="text-sm text-muted-foreground">Two human players battle it out.</p>
+                                    </div>
+                                </Label>
+                                <Label className="flex items-center space-x-3 p-4 border rounded-md has-[input:checked]:bg-secondary cursor-pointer transition-colors">
+                                    <RadioGroupItem value="ai" id="g2" />
+                                    <div>
+                                      <p className="font-medium">Player vs. AI</p>
+                                      <p className="text-sm text-muted-foreground">Test your skills against an AI Commander.</p>
+                                    </div>
+                                </Label>
+                            </RadioGroup>
+                           </div>
                         </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="grid gap-4 pt-2">
-                          <div className="space-y-2">
-                              <Label htmlFor="player1-name">Player 1 Name</Label>
-                              <Input
-                              id="player1-name"
-                              value={player1Name}
-                              onChange={(e) => setPlayer1Name(e.target.value)}
-                              placeholder="Enter player name"
-                              />
-                          </div>
-                          <div className="space-y-2">
-                              <Label htmlFor="player2-name">{gameType === 'ai' ? 'AI Name' : 'Player 2 Name'}</Label>
-                              <Input
-                              id="player2-name"
-                              value={gameType === 'ai' ? 'AI Commander' : player2Name}
-                              onChange={(e) => setPlayer2Name(e.target.value)}
-                              placeholder="Enter player name"
-                              disabled={gameType === 'ai'}
-                              />
-                          </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
 
-                  <AccordionItem value="item-3">
-                    <AccordionTrigger className="text-lg font-headline cursor-default">
-                         <div className="flex justify-between w-full items-center pr-2">
-                            <span>Game Mode</span>
-                            {getStepIcon(3)}
+                        {/* Step 2: Player Names */}
+                        <div className="min-w-0 flex-[0_0_100%] p-1 animate-carousel-in">
+                            <div className="grid gap-4 pt-2">
+                              <div className="space-y-2">
+                                  <Label htmlFor="player1-name">Player 1 Name</Label>
+                                  <Input
+                                  id="player1-name"
+                                  value={player1Name}
+                                  onChange={(e) => setPlayer1Name(e.target.value)}
+                                  placeholder="Enter player name"
+                                  />
+                              </div>
+                              <div className="space-y-2">
+                                  <Label htmlFor="player2-name">{gameType === 'ai' ? 'AI Name' : 'Player 2 Name'}</Label>
+                                  <Input
+                                  id="player2-name"
+                                  value={gameType === 'ai' ? 'AI Commander' : player2Name}
+                                  onChange={(e) => setPlayer2Name(e.target.value)}
+                                  placeholder="Enter player name"
+                                  disabled={gameType === 'ai'}
+                                  />
+                              </div>
+                            </div>
                         </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="pt-2">
-                          <RadioGroup value={gameMode} onValueChange={handleGameModeChange} className="gap-2">
-                              <Label className="flex items-center space-x-3 p-3 border rounded-md has-[input:checked]:bg-secondary cursor-pointer">
-                                  <RadioGroupItem value="classic" id="r1" />
-                                  <div>
-                                      <span className="font-medium">Classic</span>
-                                      <p className="text-xs text-muted-foreground">The original naval combat game. One shot per turn.</p>
-                                  </div>
-                              </Label>
-                              <Label className="flex items-center space-x-3 p-3 border rounded-md has-[input:checked]:bg-secondary cursor-pointer">
-                                  <RadioGroupItem value="salvo" id="r2" />
-                                  <div>
-                                      <span className="font-medium">Salvo</span>
-                                      <p className="text-xs text-muted-foreground">Fire one shot for each of your remaining ships.</p>
-                                  </div>
-                              </Label>
-                              <Label className="flex items-center space-x-3 p-3 border rounded-md has-[input:checked]:bg-secondary cursor-pointer">
-                                  <RadioGroupItem value="nuclear" id="r3" />
-                                  <div>
-                                      <span className="font-medium">Nuclear</span>
-                                      <p className="text-xs text-muted-foreground">One hit, one kill. Each successful hit sinks the ship.</p>
-                                  </div>
-                              </Label>
-                              <Label className="flex items-center space-x-3 p-3 border rounded-md has-[input:checked]:bg-secondary cursor-pointer">
-                                  <RadioGroupItem value="ability" id="r4" />
-                                  <div>
-                                      <span className="font-medium">Ability</span>
-                                      <p className="text-xs text-muted-foreground">Use special abilities to destroy your opponent</p>
-                                  </div>
-                              </Label>
-                          </RadioGroup>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
+
+                        {/* Step 3: Game Mode */}
+                        <div className="min-w-0 flex-[0_0_100%] p-1 animate-carousel-in">
+                            <div className="pt-2">
+                                <RadioGroup value={gameMode} onValueChange={handleGameModeChange} className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                    {Object.entries(gameModeDetails).map(([key, { title, description }]) => (
+                                        <Label key={key} className="flex items-start space-x-3 p-3 border rounded-md has-[input:checked]:bg-secondary cursor-pointer transition-colors">
+                                            <RadioGroupItem value={key} id={key} className="mt-1" />
+                                            <div>
+                                                <span className="font-medium">{title}</span>
+                                                <p className="text-xs text-muted-foreground leading-tight">{description}</p>
+                                            </div>
+                                        </Label>
+                                    ))}
+                                </RadioGroup>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div className="w-full flex justify-between mt-6">
-                    <Button onClick={handleBack} variant="outline" disabled={currentStep === 1}>
+                    <Button onClick={handleBack} variant="outline" disabled={currentStep === 0}>
                         Back
                     </Button>
 
-                    {currentStep < 3 ? (
+                    {currentStep < steps.length - 1 ? (
                         <Button onClick={handleNext}>
                             Next
                         </Button>

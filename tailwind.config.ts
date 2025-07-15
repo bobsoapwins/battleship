@@ -105,7 +105,17 @@ export default {
         'pulse-dot': {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0.5' },
-        }
+        },
+        'carousel-in': {
+          'from': {
+            opacity: '0',
+            transform: 'scale(0.95)',
+          },
+          'to': {
+            opacity: '1',
+            transform: 'scale(1)',
+          }
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -113,6 +123,7 @@ export default {
         'shot': 'shot 1s ease-out',
         'message-in': 'message-in 0.3s ease-out',
         'pulse-dot': 'pulse-dot 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'carousel-in': 'carousel-in 0.5s ease-out forwards',
       },
     },
   },
