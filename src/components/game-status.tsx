@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { FC } from 'react';
@@ -5,7 +6,6 @@ import { PartyPopper } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { GamePhase, Player } from '@/lib/game';
-import { GameStats } from './game-stats';
 
 interface GameStatusProps {
   phase: GamePhase;
@@ -14,12 +14,11 @@ interface GameStatusProps {
   onStartNextPlacement?: () => void;
   isTransitioning?: boolean;
   onConfirmShot?: () => void;
-  players?: [Player, Player];
   winner: Player | null;
   isAIGame?: boolean;
 }
 
-export const GameStatus: FC<GameStatusProps> = ({ phase, message, onReset, onStartNextPlacement, isTransitioning, onConfirmShot, players, winner, isAIGame }) => {
+export const GameStatus: FC<GameStatusProps> = ({ phase, message, onReset, onStartNextPlacement, isTransitioning, onConfirmShot, winner, isAIGame }) => {
   const renderTitle = () => {
     if (phase === 'gameover' && winner) return `${winner.name} Wins!`;
     if (phase === 'gameover') return 'Game Over';
@@ -36,8 +35,7 @@ export const GameStatus: FC<GameStatusProps> = ({ phase, message, onReset, onSta
 
   const getTransitionMessage = () => {
     if (isAIGame) {
-      const humanPlayerName = players ? players[0].name : 'your';
-      if (winner && winner.id === 2) return `The AI has processed its turn. It's ${humanPlayerName} turn.`
+      if (winner && winner.id === 2) return `The AI has processed its turn. It's your turn.`
       return "The AI has processed its turn. Press Continue."
     }
     return 'Pass the device to your opponent and press Continue.';
@@ -55,10 +53,9 @@ export const GameStatus: FC<GameStatusProps> = ({ phase, message, onReset, onSta
             : message}
         </CardDescription>
       </CardHeader>
-      {phase === 'gameover' && players && winner && (
+      {phase === 'gameover' && (
         <CardContent className="flex flex-col items-center gap-4">
           <PartyPopper className="w-16 h-16 text-primary" />
-          <GameStats players={players} />
           <Button onClick={onReset}>Play Again</Button>
         </CardContent>
       )}

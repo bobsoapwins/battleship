@@ -22,6 +22,9 @@ import type { GameMode, AbilityConfig } from '@/lib/game';
 import { Abilities } from '@/components/abilities';
 import { AIAssistant } from '@/components/ai-assistant';
 import { ThemeSwitcher } from '@/components/theme-switcher';
+import { Button } from '@/components/ui/button';
+import { GameStats } from '@/components/game-stats';
+import { Eye, BookOpen } from 'lucide-react';
 
 
 const GameBoard = dynamic(() => import('@/components/game-board').then(mod => mod.GameBoard), {
@@ -42,6 +45,7 @@ export default function Home() {
   const [isLoadingInsights, setIsLoadingInsights] = useState(false);
   const [gameVisible, setGameVisible] = useState(false);
   const [isAIThinking, setIsAIThinking] = useState(false);
+  const [showFinalBoards, setShowFinalBoards] = useState(false);
 
   const currentPlayer = players[currentPlayerId - 1];
   const opponentPlayer = players[currentPlayerId === 1 ? 1 : 0];
@@ -90,6 +94,7 @@ export default function Home() {
     }
     if (phase !== 'gameover') {
         setInsights(null);
+        setShowFinalBoards(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, winner]);
@@ -280,28 +285,41 @@ export default function Home() {
   
   const renderGameOver = () => {
     return (
-        <div className="flex flex-col gap-8">
-          <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
-            {players.map(player => (
-              <div key={player.id} className="w-full lg:w-1/2 p-4 rounded-xl">
-                <h2 className="text-2xl font-headline mb-4 text-center">{`${player.name}'s Final Board`}</h2>
-                <GameBoard
-                  boardData={player.board}
-                  ships={player.ships}
-                  onCellClick={() => {}}
-                  isPlayerBoard={true}
-                  disabled={true}
-                  revealShips={true}
-                />
-              </div>
-            ))}
-          </div>
-          <AIInsights
-            players={players}
-            insights={insights}
-            isLoading={isLoadingInsights}
-          />
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-center">
+            <Button variant="outline" onClick={() => setShowFinalBoards(p => !p)}>
+                {showFinalBoards ? <BookOpen /> : <Eye />}
+                {showFinalBoards ? 'Show Report' : 'Show Final Boards'}
+            </Button>
         </div>
+
+        {showFinalBoards ? (
+            <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
+                {players.map(player => (
+                <div key={player.id} className="w-full lg:w-1/2 p-4 rounded-xl">
+                    <h2 className="text-2xl font-headline mb-4 text-center">{`${player.name}'s Final Board`}</h2>
+                    <GameBoard
+                    boardData={player.board}
+                    ships={player.ships}
+                    onCellClick={() => {}}
+                    isPlayerBoard={true}
+                    disabled={true}
+                    revealShips={true}
+                    />
+                </div>
+                ))}
+            </div>
+        ) : (
+            <div className="w-full max-w-2xl mx-auto space-y-4">
+                <GameStats players={players} />
+                <AIInsights
+                    players={players}
+                    insights={insights}
+                    isLoading={isLoadingInsights}
+                />
+            </div>
+        )}
+      </div>
     )
   }
 
@@ -368,7 +386,6 @@ export default function Home() {
             onStartNextPlacement={startNextPlacement}
             isTransitioning={isTransitioning}
             onConfirmShot={confirmShotAndSwitchTurn}
-            players={players}
             winner={winner}
             isAIGame={isAIGame}
           />
