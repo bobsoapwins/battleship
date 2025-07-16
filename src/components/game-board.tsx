@@ -98,7 +98,7 @@ export const GameBoard: FC<GameBoardProps> = ({
         }
         return null;
       case 'mine':
-        if (isPlayerBoard) {
+        if (isPlayerBoard || revealShips) {
             return <Bomb className="w-5 h-5 text-yellow-400" />
         }
         return null;
@@ -127,7 +127,7 @@ export const GameBoard: FC<GameBoardProps> = ({
           const ship = getShipAt(x, y);
           const isShipSunk = isSunk(ship);
           const wasLastShot = isLastShot(x, y);
-          const showShip = isPlayerBoard || (revealShips && cell === 'ship');
+          const showShip = isPlayerBoard || (revealShips && (cell === 'ship' || cell === 'hit'));
           const cellIsScanned = !isPlayerBoard && isScanned(x, y);
           const isPreview = isPreviewCell(x, y);
           

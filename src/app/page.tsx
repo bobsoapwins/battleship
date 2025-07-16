@@ -277,6 +277,33 @@ export default function Home() {
         </div>
     );
   };
+  
+  const renderGameOver = () => {
+    return (
+        <div className="flex flex-col gap-8">
+          <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
+            {players.map(player => (
+              <div key={player.id} className="w-full lg:w-1/2 p-4 rounded-xl">
+                <h2 className="text-2xl font-headline mb-4 text-center">{`${player.name}'s Final Board`}</h2>
+                <GameBoard
+                  boardData={player.board}
+                  ships={player.ships}
+                  onCellClick={() => {}}
+                  isPlayerBoard={true}
+                  disabled={true}
+                  revealShips={true}
+                />
+              </div>
+            ))}
+          </div>
+          <AIInsights
+            players={players}
+            insights={insights}
+            isLoading={isLoadingInsights}
+          />
+        </div>
+    )
+  }
 
   const renderContent = () => {
     if (!isClient) {
@@ -289,13 +316,7 @@ export default function Home() {
       case 'battle':
         return renderBattlePhase();
       case 'gameover':
-         return (
-          <AIInsights
-            players={players}
-            insights={insights}
-            isLoading={isLoadingInsights}
-          />
-        );
+         return renderGameOver();
       case 'intermission':
         return null; // Handled by GameStatus
       case 'pre-battle':
