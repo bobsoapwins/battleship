@@ -96,8 +96,7 @@ export default function Home() {
         setInsights(null);
         setShowFinalBoards(false);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, winner]);
+  }, [phase, winner, insights, isLoadingInsights, players]);
 
    useEffect(() => {
     if (isAITurn && !isTransitioning && phase === 'battle' && !isAIThinking) {
