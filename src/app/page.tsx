@@ -72,20 +72,19 @@ export default function Home() {
   }, [placementState.placementComplete, endPlacement]);
 
   useEffect(() => {
-    if (phase === 'gameover' && winner && !insights && !isLoadingInsights) {
+    if (phase === 'gameover' && !isLoadingInsights && !insights) {
         const fetchInsights = async () => {
             setIsLoadingInsights(true);
             try {
                 const input: GameAnalysisInput = {
                     player1: { name: players[0].name, ...players[0].stats },
                     player2: { name: players[1].name, ...players[1].stats },
-                    winnerName: winner.name,
+                    winnerName: winner!.name,
                 };
                 const result = await getGameAnalysis(input);
                 setInsights(result);
             } catch (error) {
                 console.error("Failed to get AI insights:", error);
-                // Optionally set some error state to display to the user
             } finally {
                 setIsLoadingInsights(false);
             }
@@ -96,7 +95,8 @@ export default function Home() {
         setInsights(null);
         setShowFinalBoards(false);
     }
-  }, [phase, winner, insights, isLoadingInsights, players]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, isLoadingInsights]);
 
    useEffect(() => {
     if (isAITurn && !isTransitioning && phase === 'battle' && !isAIThinking) {
