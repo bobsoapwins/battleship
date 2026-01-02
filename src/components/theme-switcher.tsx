@@ -10,8 +10,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu';
-import { Settings, Palette } from 'lucide-react';
+import { Settings, Palette, Bot, RefreshCcw } from 'lucide-react';
+import { useGame } from '@/hooks/use-game';
 
 type Theme = 'default' | 'dark' | 'deep-sea' | 'arctic' | 'volcanic';
 
@@ -25,7 +30,8 @@ const themeLabels: Record<Theme, string> = {
 
 const allThemeClasses = ['dark', 'theme-deep-sea', 'theme-arctic', 'theme-volcanic'];
 
-export function ThemeSwitcher() {
+export function SettingsMenu({ onAssistantToggle, isAssistantEnabled }: { onAssistantToggle: () => void, isAssistantEnabled: boolean }) {
+  const { resetGame } = useGame();
   const [theme, setTheme] = useState<Theme>('default');
 
   useEffect(() => {
@@ -38,10 +44,8 @@ export function ThemeSwitcher() {
   useEffect(() => {
     const root = document.documentElement;
     
-    // Remove all possible theme classes
     root.classList.remove(...allThemeClasses);
 
-    // Add the class for the selected theme
     if (theme === 'dark') {
       root.classList.add('dark');
     } else if (theme !== 'default') {
@@ -56,22 +60,41 @@ export function ThemeSwitcher() {
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon">
           <Settings className="h-[1.2rem] w-[1.2rem]" />
-          <span className="sr-only">Toggle theme</span>
+          <span className="sr-only">Open settings</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel>
-          <div className="flex items-center gap-2">
-            <Palette className="w-4 h-4" />
-            <span>Select Theme</span>
-          </div>
-        </DropdownMenuLabel>
+        <DropdownMenuLabel>Settings</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {Object.entries(themeLabels).map(([key, label]) => (
-          <DropdownMenuItem key={key} onClick={() => setTheme(key as Theme)}>
-            {label}
-          </DropdownMenuItem>
-        ))}
+        
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            <Palette className="mr-2 h-4 w-4" />
+            <span>Theme</span>
+          </DropdownMenuSubTrigger>
+          <DropdownMenuPortal>
+            <DropdownMenuSubContent>
+              {Object.entries(themeLabels).map(([key, label]) => (
+                <DropdownMenuItem key={key} onClick={() => setTheme(key as Theme)}>
+                  {label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuSubContent>
+          </DropdownMenuPortal>
+        </DropdownMenuSub>
+
+        <DropdownMenuItem onClick={onAssistantToggle}>
+          <Bot className="mr-2 h-4 w-4" />
+          <span>{isAssistantEnabled ? 'Disable' : 'Enable'} Assistant</span>
+        </DropdownMenuItem>
+        
+        <DropdownMenuSeparator />
+
+        <DropdownMenuItem onClick={resetGame} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
+          <RefreshCcw className="mr-2 h-4 w-4" />
+          <span>Reset Game</span>
+        </DropdownMenuItem>
+
       </DropdownMenuContent>
     </DropdownMenu>
   );

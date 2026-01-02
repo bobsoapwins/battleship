@@ -21,7 +21,7 @@ import { IntroScreen } from '@/components/intro-screen';
 import type { GameMode, AbilityConfig } from '@/lib/game';
 import { Abilities } from '@/components/abilities';
 import { AIAssistant } from '@/components/ai-assistant';
-import { ThemeSwitcher } from '@/components/theme-switcher';
+import { SettingsMenu } from '@/components/theme-switcher';
 import { Button } from '@/components/ui/button';
 import { GameStats } from '@/components/game-stats';
 import { Eye, BookOpen } from 'lucide-react';
@@ -46,6 +46,7 @@ export default function Home() {
   const [gameVisible, setGameVisible] = useState(false);
   const [isAIThinking, setIsAIThinking] = useState(false);
   const [showFinalBoards, setShowFinalBoards] = useState(false);
+  const [isAssistantEnabled, setIsAssistantEnabled] = useState(true);
 
   const currentPlayer = players[currentPlayerId - 1];
   const opponentPlayer = players[currentPlayerId === 1 ? 1 : 0];
@@ -129,7 +130,9 @@ export default function Home() {
 
       if (e.key === 'Tab') {
         e.preventDefault();
-        setIsAssistantOpen(prev => !prev);
+        if (isAssistantEnabled) {
+          setIsAssistantOpen(prev => !prev);
+        }
       }
 
       if (e.shiftKey && e.key === 'Tab') {
@@ -161,7 +164,7 @@ export default function Home() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isTerminalOpen, isAssistantOpen, currentScreen]);
+  }, [isTerminalOpen, isAssistantOpen, currentScreen, isAssistantEnabled]);
 
   const handleTerminalCommand = (command: string) => {
     if (command.toLowerCase() === '/cheat') {
@@ -375,7 +378,7 @@ export default function Home() {
 
   return (
     <>
-      <AIAssistant open={isAssistantOpen} onOpenChange={setIsAssistantOpen} />
+      <AIAssistant open={isAssistantOpen && isAssistantEnabled} onOpenChange={setIsAssistantOpen} />
       <main className={mainContentClass}>
         <div className="w-full mb-8">
           <GameStatus
@@ -400,11 +403,15 @@ export default function Home() {
         )}
       </main>
       <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2">
-          <ThemeSwitcher />
-          <span className="text-sm text-muted-foreground hidden sm:inline">AI Assistant</span>
-          <div className="flex h-8 w-12 items-center justify-center rounded-md border bg-background/80 p-1 font-code text-sm shadow-md backdrop-blur-sm">
-              TAB
-          </div>
+          <SettingsMenu onAssistantToggle={() => setIsAssistantEnabled(p => !p)} isAssistantEnabled={isAssistantEnabled} />
+          {isAssistantEnabled && (
+            <>
+              <span className="text-sm text-muted-foreground hidden sm:inline">AI Assistant</span>
+              <div className="flex h-8 w-12 items-center justify-center rounded-md border bg-background/80 p-1 font-code text-sm shadow-md backdrop-blur-sm">
+                  TAB
+              </div>
+            </>
+          )}
       </div>
     </>
   );
