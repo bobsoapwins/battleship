@@ -13,7 +13,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import type { GameMode, AbilityConfig } from '@/lib/game';
 import { AbilityDisclaimer } from './ability-disclaimer';
 import { cn } from '@/lib/utils';
-import { CheckCircle2, Circle, Pencil } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 
 type GameType = 'human' | 'ai';
 interface SetupScreenProps {
@@ -38,6 +38,8 @@ const gameModeDetails: Record<GameMode, { title: string; description: string }> 
         description: "Engage in modern naval warfare with special abilities. Use Sonar to detect ships, launch a Tomahawk strike to hit multiple cells, or lay Mines to defend your fleet."
     }
 };
+
+const allThemeClasses = ['dark', 'theme-deep-sea', 'theme-arctic', 'theme-volcanic'];
 
 export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
   const [player1Name, setPlayer1Name] = useState('');
@@ -68,6 +70,20 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
 
   const handleGameModeChange = (newMode: GameMode) => {
     setGameMode(newMode);
+    const root = document.documentElement;
+
+    if (newMode === 'nuclear') {
+        root.classList.remove(...allThemeClasses.filter(c => c !== 'theme-volcanic'));
+        root.classList.add('theme-volcanic');
+        localStorage.setItem('battleship-theme', 'volcanic');
+    } else {
+        // Revert to default if a non-nuclear mode is selected
+        const storedTheme = localStorage.getItem('battleship-theme');
+        if (storedTheme === 'volcanic') {
+            root.classList.remove('theme-volcanic');
+            localStorage.setItem('battleship-theme', 'default');
+        }
+    }
   };
   
   const handleStart = () => {
@@ -98,8 +114,11 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
   };
 
   const handleNext = () => {
-    setHighestStepReached(prev => Math.max(prev, currentStep + 1));
-    emblaApi?.scrollNext();
+    if (emblaApi) {
+        const newHighestStep = Math.max(highestStepReached, currentStep + 1);
+        setHighestStepReached(newHighestStep);
+        emblaApi.scrollNext();
+    }
   };
 
   const handleBack = () => {
@@ -228,3 +247,5 @@ export const SetupScreen = ({ onGameStart }: SetupScreenProps) => {
     </>
   );
 };
+
+    
