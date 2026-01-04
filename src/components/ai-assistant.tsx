@@ -24,9 +24,14 @@ interface AIAssistantProps {
   onOpenChange: (open: boolean) => void;
 }
 
+const initialHistory: Message[] = [
+    { role: 'model', content: 'Hello! I am Neo, your tactical assistant. How can I help you win this battle?' }
+];
+
 export function AIAssistant({ open, onOpenChange }: AIAssistantProps) {
-  const { gameState, assistantState } = useGame();
-  const { history, isLoading, setHistory, setIsLoading } = assistantState;
+  const { gameState } = useGame();
+  const [history, setHistory] = useState<Message[]>(initialHistory);
+  const [isLoading, setIsLoading] = useState(false);
   const [input, setInput] = useState('');
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -63,6 +68,13 @@ export function AIAssistant({ open, onOpenChange }: AIAssistantProps) {
       });
     }
   }, [history]);
+
+  useEffect(() => {
+      // Reset history when a new game starts
+      if (gameState.phase === 'setup') {
+          setHistory(initialHistory);
+      }
+  }, [gameState.phase]);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
