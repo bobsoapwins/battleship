@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useGame } from '@/hooks/use-game';
 import { chatWithAssistant } from '@/ai/flows/assistant-flow';
@@ -28,7 +28,8 @@ const initialHistory: Message[] = [
     { role: 'model', content: 'Hello! I am Neo, your tactical assistant. How can I help you win this battle?' }
 ];
 
-export function AIAssistant({ open, onOpenChange }: AIAssistantProps) {
+// Memoize the component to prevent re-renders when gameState object reference changes
+export const AIAssistant = memo(function AIAssistant({ open, onOpenChange }: AIAssistantProps) {
   const { gameState } = useGame();
   const [history, setHistory] = useState<Message[]>(initialHistory);
   const [isLoading, setIsLoading] = useState(false);
@@ -70,7 +71,7 @@ export function AIAssistant({ open, onOpenChange }: AIAssistantProps) {
   }, [history]);
 
   useEffect(() => {
-      // Reset history when a new game starts
+      // Reset history only when a new game starts.
       if (gameState.phase === 'setup') {
           setHistory(initialHistory);
       }
@@ -135,4 +136,4 @@ export function AIAssistant({ open, onOpenChange }: AIAssistantProps) {
       </SheetContent>
     </Sheet>
   );
-}
+});
