@@ -96,9 +96,8 @@ export default function Home() {
         setInsights(null);
         setShowFinalBoards(false);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, isLoadingInsights]);
-
+  }, [phase, players, winner, isLoadingInsights, insights]);
+  
    useEffect(() => {
     if (isAITurn && !isTransitioning && phase === 'battle' && !isAIThinking) {
       setIsAIThinking(true);
@@ -378,7 +377,11 @@ export default function Home() {
 
   return (
     <>
-      <AIAssistant open={isAssistantOpen && isAssistantEnabled} onOpenChange={setIsAssistantOpen} />
+      <AIAssistant 
+        open={isAssistantOpen && isAssistantEnabled} 
+        onOpenChange={setIsAssistantOpen} 
+        gameState={gameState}
+      />
       <main className={mainContentClass}>
         <div className="w-full mb-8">
           <GameStatus

@@ -5,7 +5,7 @@ import { useState, useEffect, useRef, memo } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useGame } from '@/hooks/use-game';
 import { chatWithAssistant } from '@/ai/flows/assistant-flow';
-import type { Message } from '@/lib/game';
+import type { Message, GameState } from '@/lib/game';
 import { cn } from '@/lib/utils';
 import {
   Sheet,
@@ -22,15 +22,14 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 interface AIAssistantProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  gameState: GameState;
 }
 
 const initialHistory: Message[] = [
     { role: 'model', content: 'Hello! I am Neo, your tactical assistant. How can I help you win this battle?' }
 ];
 
-// Memoize the component to prevent re-renders when gameState object reference changes
-export const AIAssistant = memo(function AIAssistant({ open, onOpenChange }: AIAssistantProps) {
-  const { gameState } = useGame();
+const AIAssistantComponent = ({ open, onOpenChange, gameState }: AIAssistantProps) => {
   const [history, setHistory] = useState<Message[]>(initialHistory);
   const [isLoading, setIsLoading] = useState(false);
   const [input, setInput] = useState('');
@@ -71,7 +70,6 @@ export const AIAssistant = memo(function AIAssistant({ open, onOpenChange }: AIA
   }, [history]);
 
   useEffect(() => {
-      // Reset history only when a new game starts.
       if (gameState.phase === 'setup') {
           setHistory(initialHistory);
       }
@@ -136,4 +134,14 @@ export const AIAssistant = memo(function AIAssistant({ open, onOpenChange }: AIA
       </SheetContent>
     </Sheet>
   );
-});
+};
+
+
+// Custom comparison function for React.memo
+const arePropsEqual = (prevProps: AIAssistantProps, nextProps: AIAssistantProps) => {
+  // Only re-render if the 'open' prop or the 'game phase' changes.
+  // This prevents re-renders from other gameState changes.
+  return prevProps.open === nextProps.open && prevProps.gameState.phase === nextProps.gameState.phase;
+}
+
+export const AIAssistant = memo(AIAssistantComponent, arePropsEqual);
