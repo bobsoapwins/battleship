@@ -17,7 +17,6 @@ import type { GameAnalysisInput, GameAnalysisOutput } from '@/ai/flows/game-anal
 import { getGameAnalysis } from '@/ai/flows/game-analysis-flow';
 import { getAIOpponentMove } from '@/ai/flows/ai-opponent-flow';
 import { AIInsights } from '@/components/ai-insights';
-import { IntroScreen } from '@/components/intro-screen';
 import type { GameMode, AbilityConfig } from '@/lib/game';
 import { Abilities } from '@/components/abilities';
 import { AIAssistant } from '@/components/ai-assistant';
@@ -37,7 +36,7 @@ export default function Home() {
   const { gameState, setPlayerNames, placeShip, handleFire, resetGame, toggleOrientation, startNextPlacement, confirmShotAndSwitchTurn, togglePlayerReady, startBattle, forceWin, endPlacement, toggleAbility, resetPlayerBoard } = useGame();
   const { phase, players, currentPlayerId, message, placementState, isTransitioning, shotResult, readyStates, winner, gameMode, activeAbility, isAIGame, placementError } = gameState;
   const [isClient, setIsClient] = useState(false);
-  const [currentScreen, setCurrentScreen] = useState<'loading' | 'intro' | 'game'>('loading');
+  const [currentScreen, setCurrentScreen] = useState<'loading' | 'game'>('loading');
   const [revealOpponent, setRevealOpponent] = useState(false);
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
@@ -131,13 +130,6 @@ export default function Home() {
         e.preventDefault();
         if (isAssistantEnabled) {
           setIsAssistantOpen(prev => !prev);
-        }
-      }
-
-      if (e.shiftKey && e.key === 'Tab') {
-        if (currentScreen === 'intro') {
-            e.preventDefault();
-            setCurrentScreen('game');
         }
       }
 
@@ -354,11 +346,7 @@ export default function Home() {
   };
   
   if (currentScreen === 'loading') {
-    return <LoadingScreen onComplete={() => setCurrentScreen('intro')} />;
-  }
-
-  if (currentScreen === 'intro') {
-    return <IntroScreen onComplete={() => setCurrentScreen('game')} />;
+    return <LoadingScreen onComplete={() => setCurrentScreen('game')} />;
   }
 
   const mainContentClass = cn(
