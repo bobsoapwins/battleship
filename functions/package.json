@@ -35,5 +35,11 @@
     "tsx": "^4.20.3",
     "typescript": "^5.8.3"
   },
-  "private": true
+  "private": true,
+  "overrides": {
+    "@anthropic-ai/sdk": "0.99.0",
+    "@opentelemetry/auto-instrumentations-node": "0.76.0",
+    "@opentelemetry/sdk-node": "0.218.0",
+    "uuid": "14.0.0"
+  }
 }
