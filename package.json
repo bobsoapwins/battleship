@@ -68,7 +68,9 @@
   "overrides": {
     "@opentelemetry/auto-instrumentations-node": "0.76.0",
     "@opentelemetry/sdk-node": "0.218.0",
-    "postcss": "8.5.15",
+    "next": {
+      "postcss": "8.5.15"
+    },
     "uuid": "14.0.0"
   }
 }
